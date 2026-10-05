@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 또오냥 팬페이지 — Next.js + Vercel + Supabase
 
 현재까지 만든 팬페이지를 표준 Next.js App Router 프로젝트로 옮긴 코드입니다. ChatGPT Sites나 Cloudflare 전용 코드는 포함하지 않았습니다. 이 압축파일을 받는 것만으로 Vercel에 배포되지는 않습니다.
@@ -116,3 +117,6 @@ supabase/                 테이블·권한 설정 SQL
 - Supabase 서명 업로드: https://supabase.com/docs/reference/javascript/file-buckets-uploadtosignedurl
 - Vercel 함수 제한: https://vercel.com/docs/functions/limitations
 - Vercel Next.js 배포: https://vercel.com/docs/frameworks/full-stack/nextjs
+=======
+# ddocat
+>>>>>>> 2e9d044333fd517fd17c4af6bf668138782d640c
