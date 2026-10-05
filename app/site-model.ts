@@ -25,7 +25,7 @@ export const configSchema = z.object({
   zoom: z.number().min(100).max(150),
   soop: link,
   youtube: link,
-  cafe: link,
+  cafe: link.default(""),
   vods: z
     .array(
       z.object({
