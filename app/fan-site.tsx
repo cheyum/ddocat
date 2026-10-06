@@ -26,14 +26,22 @@ const menus = [
   { key: "calendar", label: "캘린더", Icon: CalendarDays },
   { key: "minigame", label: "미니게임", Icon: Gamepad2 },
 ];
-export function Backdrop({ data }: { data: Config }) {
+export function Backdrop({
+  data,
+  background,
+}: {
+  data: Config;
+  background?: string;
+}) {
   return (
     <div
       className="backdrop"
       aria-hidden="true"
       style={
         {
-          "--pc-bg": data.background ? `url("${data.background}")` : "none",
+          "--pc-bg": background || data.background
+  ? `url("${background || data.background}")`
+  : "none",
           "--mobile-bg":
             data.mobileBackground || data.background
               ? `url("${data.mobileBackground || data.background}")`
@@ -135,6 +143,29 @@ export default function FanSite({
   section: string;
 }) {
   const active = menus.find((m) => m.key === section);
+  const backgroundList = [
+  data.background,
+  ...data.backgrounds,
+].filter(Boolean);
+
+const [backgroundIndex, setBackgroundIndex] =
+  useState(0);
+
+function previousBackground() {
+  setBackgroundIndex((current) =>
+    current <= 0
+      ? backgroundList.length - 1
+      : current - 1,
+  );
+}
+
+function nextBackground() {
+  setBackgroundIndex((current) =>
+    current >= backgroundList.length - 1
+      ? 0
+      : current + 1,
+  );
+}
 
   const router = useRouter();
 
@@ -177,24 +208,59 @@ export default function FanSite({
   }
   return (
     <div className={`site ${section === "home" ? "home" : "inner"}`}>
-      <Backdrop data={data} />
+      <Backdrop
+  data={data}
+  background={backgroundList[backgroundIndex]}
+/>
       <header className="site-header">
-        <Link href="/" className="brand" aria-label="또오냥 메인">
-  {data.brandlogo ? (
-    <img
-      src={data.brandlogo}
-      alt="또오냥 로고"
-      className="brand-logo"
-    />
-  ) : (
-    <Cat size={27} strokeWidth={1.7} />
-  )}
+        <div className="brand-area">
+  <Link
+    href="/"
+    className="brand"
+    aria-label="또오냥 메인"
+  >
+    {data.brandLogo ? (
+      <img
+        src={data.brandLogo}
+        alt="또오냥 로고"
+        className="brand-logo"
+      />
+    ) : (
+      <Cat size={27} strokeWidth={1.7} />
+    )}
 
-  <span>
-    {data.name}
-    <small>타마고 WORLD</small>
-  </span>
-</Link>
+    <span>
+      {data.name}
+      <small>타마고 WORLD</small>
+    </span>
+  </Link>
+
+  {section === "home" &&
+    backgroundList.length > 1 && (
+      <div className="background-switcher">
+        <button
+          type="button"
+          onClick={previousBackground}
+          aria-label="이전 배경"
+        >
+          <ChevronLeft size={16} />
+        </button>
+
+        <span>
+          {backgroundIndex + 1} /{" "}
+          {backgroundList.length}
+        </span>
+
+        <button
+          type="button"
+          onClick={nextBackground}
+          aria-label="다음 배경"
+        >
+          <ChevronRight size={16} />
+        </button>
+      </div>
+    )}
+</div>
         <nav aria-label="페이지 메뉴">
   {menus.map(({ key, label, Icon }) => (
     <Link

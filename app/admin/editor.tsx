@@ -527,6 +527,104 @@ export default function AdminEditor({
                     <Backdrop data={data} />
                     <ProfileCard data={data} />
                   </section>
+                  {tab === "main" && (
+  <>
+    <section className="edit-panel">
+      기존 PC/모바일 배경 설정
+    </section>
+
+    {/* 여기부터 새로 추가 */}
+
+    <section className="edit-panel">
+      <div className="edit-panel-heading">
+        <div>
+          <h2>추가 배경 이미지</h2>
+
+          <p>
+            여러 장을 등록하면 메인페이지에서
+            방향키로 배경을 변경할 수 있어요.
+            업로드 이미지는 1920 × 1080 규격으로
+            자동 변환돼요.
+          </p>
+        </div>
+
+        <label className="secondary-button upload-button">
+          배경 추가
+
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            disabled={busy}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+
+              upload(
+                file,
+                "background",
+                (url: string) => {
+                  update(
+                    "backgrounds",
+                    [
+                      ...data.backgrounds,
+                      url,
+                    ],
+                  );
+                },
+              );
+
+              e.currentTarget.value = "";
+            }}
+          />
+        </label>
+      </div>
+
+      {!data.backgrounds.length && (
+        <p>
+          아직 추가로 등록된 배경 이미지가 없어요.
+        </p>
+      )}
+
+      <div className="background-list">
+        {data.backgrounds.map((url, index) => (
+          <div
+            className="background-list-item"
+            key={`${url}-${index}`}
+          >
+            <img
+              src={url}
+              alt={`추가 배경 ${index + 1}`}
+            />
+
+            <div className="background-list-info">
+              <span>
+                배경 {index + 1}
+              </span>
+
+              <button
+                type="button"
+                className="text-button"
+                onClick={() =>
+                  update(
+                    "backgrounds",
+                    data.backgrounds.filter(
+                      (_, i) => i !== index,
+                    ),
+                  )
+                }
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {/* 여기까지 새로 추가 */}
+
+    ...
+  </>
+)}
                 )}
               </>
             )}
