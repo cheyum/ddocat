@@ -205,7 +205,7 @@ useLayoutEffect(() => {
   if (!backgroundList.length) return;
 
   const saved = sessionStorage.getItem(
-    "ddocat-background-index",
+    "DDOCAT-background-index",
   );
 
   if (saved === null) return;
@@ -220,7 +220,7 @@ useLayoutEffect(() => {
     setBackgroundIndex(savedIndex);
   } else {
     sessionStorage.setItem(
-      "ddocat-background-index",
+      "DDOCAT-background-index",
       "0",
     );
 
@@ -239,7 +239,7 @@ function changeBackground(index: number) {
   setBackgroundIndex(nextIndex);
 
   sessionStorage.setItem(
-    "ddocat-background-index",
+    "DDOCAT-background-index",
     String(nextIndex),
   );
 }
@@ -447,7 +447,7 @@ const [adminPassword, setAdminPassword] =
       ) : (
         <main className="page-main">
           <div className="page-heading">
-            <span className="eyebrow">ddocat / {section.toUpperCase()}</span>
+            <span className="eyebrow">DDOCAT / {section.toUpperCase()}</span>
             <h1>
               {active?.label}
               <span>✦</span>
@@ -510,7 +510,7 @@ const [adminPassword, setAdminPassword] =
       </div>
 
       <span className="admin-login-eyebrow">
-        ddocat ADMIN
+        DDOCAT ADMIN
       </span>
 
       <h2 id="admin-login-title">
