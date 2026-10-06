@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: "또오냥 | 팬페이지",
+  title: "타마고 WORLD",
   description: "또오냥의 팬 공간. 프로필, VOD, 방송 일정과 미니게임.",
   icons: { icon: "/favicon.svg" },
 };
