@@ -89,47 +89,50 @@ async function resizeImage(
   ctx.clearRect(0, 0, spec.width, spec.height);
 
   if (spec.fit === "contain") {
-    const scale = Math.min(
-      spec.width / bitmap.width,
-      spec.height / bitmap.height,
-    );
+  // 이미지 전체가 보이도록 맞춤
+  // 남는 공간이 생길 수 있음
+  const scale = Math.min(
+    spec.width / bitmap.width,
+    spec.height / bitmap.height,
+  );
 
-    const width = bitmap.width * scale;
-    const height = bitmap.height * scale;
+  const width = bitmap.width * scale;
+  const height = bitmap.height * scale;
 
-    const x = (spec.width - width) / 2;
-    const y = (spec.height - height) / 2;
+  const x = (spec.width - width) / 2;
+  const y = (spec.height - height) / 2;
 
-    ctx.drawImage(bitmap, x, y, width, height);
-  } else {
-    const sourceRatio = bitmap.width / bitmap.height;
-    const targetRatio = spec.width / spec.height;
+  ctx.drawImage(
+    bitmap,
+    x,
+    y,
+    width,
+    height,
+  );
+} else {
+  // 규격을 빈틈없이 꽉 채움
+  // 큰 이미지는 축소
+  // 작은 이미지는 확대
+  // 비율이 다르면 넘치는 부분은 자동 크롭
+  const scale = Math.max(
+    spec.width / bitmap.width,
+    spec.height / bitmap.height,
+  );
 
-    let sx = 0;
-    let sy = 0;
-    let sw = bitmap.width;
-    let sh = bitmap.height;
+  const width = bitmap.width * scale;
+  const height = bitmap.height * scale;
 
-    if (sourceRatio > targetRatio) {
-      sw = bitmap.height * targetRatio;
-      sx = (bitmap.width - sw) / 2;
-    } else {
-      sh = bitmap.width / targetRatio;
-      sy = (bitmap.height - sh) / 2;
-    }
+  const x = (spec.width - width) / 2;
+  const y = (spec.height - height) / 2;
 
-    ctx.drawImage(
-      bitmap,
-      sx,
-      sy,
-      sw,
-      sh,
-      0,
-      0,
-      spec.width,
-      spec.height,
-    );
-  }
+  ctx.drawImage(
+    bitmap,
+    x,
+    y,
+    width,
+    height,
+  );
+}
 
   bitmap.close();
 
