@@ -2265,3 +2265,560 @@ p {
     font-size: 22px;
   }
 }
+/* ==========================================
+   VOD 전체 패널
+========================================== */
+
+.vod-section {
+  width: 100%;
+}
+
+.vod-shell {
+  width: 100%;
+  padding: 22px 24px 28px;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(8, 23, 39, 0.82),
+      rgba(20, 31, 40, 0.72)
+    );
+
+  border:
+    1px solid rgba(255, 255, 255, 0.13);
+
+  box-shadow:
+    0 20px 55px rgba(0, 0, 0, 0.18);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+
+/* ==========================================
+   VOD 상단
+========================================== */
+
+.vod-shell-header {
+  width: 100%;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vod-shell-title {
+  min-width: 0;
+}
+
+.vod-shell-title .eyebrow {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color:
+    rgba(190, 211, 255, 0.72);
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 1.7px;
+}
+
+.vod-shell-title h2 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 21px;
+  line-height: 1.25;
+
+  font-weight: 850;
+}
+
+
+/* ==========================================
+   SOOP / YouTube 탭
+========================================== */
+
+.vod-platform-tabs {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin: 0;
+}
+
+.vod-platform-tabs button {
+  min-width: 100px;
+  height: 40px;
+
+  padding: 0 18px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.13);
+
+  border-radius: 12px;
+
+  background:
+    rgba(255, 255, 255, 0.06);
+
+  color:
+    rgba(255, 255, 255, 0.7);
+
+  font-size: 12px;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.vod-platform-tabs button:hover {
+  transform: translateY(-1px);
+
+  background:
+    rgba(255, 255, 255, 0.11);
+
+  border-color:
+    rgba(255, 255, 255, 0.22);
+
+  color: #ffffff;
+}
+
+.vod-platform-tabs button.active {
+  background:
+    rgba(119, 151, 223, 0.2);
+
+  border-color:
+    rgba(160, 187, 255, 0.46);
+
+  color: #ffffff;
+
+  box-shadow:
+    0 0 22px
+    rgba(94, 131, 218, 0.13);
+}
+
+
+/* ==========================================
+   VOD 내용
+========================================== */
+
+.vod-shell-content {
+  width: 100%;
+}
+
+.vod-overview {
+  display: flex;
+  flex-direction: column;
+
+  gap: 34px;
+}
+
+
+/* SOOP / YouTube 각각의 영역 */
+
+.vod-platform-group {
+  width: 100%;
+}
+
+.vod-platform-group + .vod-platform-group {
+  padding-top: 28px;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.09);
+}
+
+
+/* ==========================================
+   그룹 제목
+========================================== */
+
+.vod-group-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 14px;
+}
+
+.vod-group-heading h2 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 17px;
+  line-height: 1.2;
+
+  font-weight: 850;
+}
+
+.vod-group-heading button {
+  padding: 6px 10px;
+
+  border: 0;
+
+  background: transparent;
+
+  color:
+    rgba(255, 255, 255, 0.5);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.vod-group-heading button:hover {
+  color: #ffffff;
+}
+
+
+/* ==========================================
+   VOD 카드 배열
+========================================== */
+
+.vod-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+
+/* ==========================================
+   VOD 카드
+========================================== */
+
+.vod-card {
+  min-width: 0;
+
+  overflow: hidden;
+
+  border-radius: 17px;
+
+  background:
+    rgba(9, 27, 31, 0.82);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.11);
+
+  box-shadow:
+    0 9px 25px rgba(0, 0, 0, 0.12);
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.vod-card:hover {
+  transform:
+    translateY(-3px);
+
+  border-color:
+    rgba(180, 205, 255, 0.28);
+
+  box-shadow:
+    0 15px 30px
+    rgba(0, 0, 0, 0.2);
+}
+
+
+/* 썸네일 */
+
+.vod-thumb {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  background:
+    rgba(8, 21, 28, 0.75);
+}
+
+.vod-thumb img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.3s ease;
+}
+
+.vod-card:hover
+.vod-thumb img {
+  transform: scale(1.025);
+}
+
+
+/* 제목 */
+
+.vod-card > h2 {
+  margin: 0;
+
+  padding: 14px 15px 16px;
+
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  line-height: 1.45;
+
+  word-break: keep-all;
+}
+
+
+/* 플랫폼 표시 */
+
+.vod-platform-badge {
+  position: absolute;
+
+  top: 10px;
+  left: 10px;
+
+  z-index: 2;
+
+  padding: 5px 8px;
+
+  border-radius: 7px;
+
+  background:
+    rgba(5, 15, 24, 0.82);
+
+  color: #ffffff;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  backdrop-filter: blur(9px);
+}
+
+
+/* 재생 버튼 */
+
+.play-icon {
+  position: absolute;
+
+  right: 12px;
+  bottom: 12px;
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    rgba(220, 233, 255, 0.92);
+
+  color: #193345;
+
+  box-shadow:
+    0 5px 18px
+    rgba(0, 0, 0, 0.2);
+}
+
+
+/* ==========================================
+   모바일 / 태블릿
+========================================== */
+
+@media (max-width: 1000px) {
+  .vod-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .vod-shell {
+    padding: 18px 15px 22px;
+
+    border-radius: 18px;
+  }
+
+  .vod-shell-header {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 15px;
+  }
+
+  .vod-shell-title h2 {
+    font-size: 19px;
+  }
+
+  .vod-platform-tabs {
+    width: 100%;
+  }
+
+  .vod-platform-tabs button {
+    flex: 1;
+
+    min-width: 0;
+  }
+
+  .vod-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vod-overview {
+    gap: 28px;
+  }
+}
+/* ==========================================
+   VOD 간격 최종 조정
+========================================== */
+
+/* 전체 박스 안쪽 여백 */
+.vod-shell {
+  padding: 18px 20px 22px;
+}
+
+
+/* 상단 제목 + 탭 영역 */
+.vod-shell-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+
+/* 제목 영역 */
+.vod-shell-title .eyebrow {
+  margin-bottom: 3px;
+}
+
+.vod-shell-title h2 {
+  margin: 0;
+
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+
+/* SOOP / YouTube 버튼 */
+.vod-platform-tabs {
+  margin: 0;
+
+  display: flex;
+  gap: 7px;
+}
+
+.vod-platform-tabs button {
+  min-width: 105px;
+  height: 40px;
+}
+
+
+/* ==========================================
+   SOOP / YouTube 섹션
+========================================== */
+
+.vod-overview {
+  gap: 28px;
+}
+
+.vod-platform-group {
+  width: 100%;
+}
+
+
+/* 두 번째 그룹 위 구분선 */
+.vod-platform-group + .vod-platform-group {
+  padding-top: 24px;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+/* 섹션 제목과 영상 카드 사이 */
+.vod-group-heading {
+  margin-bottom: 12px;
+}
+
+.vod-group-heading h2 {
+  font-size: 17px;
+}
+
+
+/* 전체보기 위치 */
+.vod-group-heading button {
+  padding: 4px 8px;
+
+  font-size: 10px;
+}
+
+
+/* ==========================================
+   영상 카드
+========================================== */
+
+.vod-grid {
+  gap: 18px;
+}
+
+
+/* 제목 영역 높이 조금 정돈 */
+.vod-card > h2 {
+  min-height: 58px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 12px 14px;
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+
+/* ==========================================
+   화면이 조금 좁을 때
+========================================== */
+
+@media (max-width: 900px) {
+  .vod-shell-header {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 12px;
+  }
+}
