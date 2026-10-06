@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import LivePlayer from "./live-player";
+import { useRouter } from "next/navigation";
+import { createClient } from "../lib/supabase/client";
 import {
   Cat,
   UserRound,
@@ -15,6 +17,7 @@ import {
   RotateCcw,
   Check,
   LockKeyhole,
+  X,
 } from "lucide-react";
 import type { Config } from "./site-model";
 const menus = [
@@ -132,6 +135,46 @@ export default function FanSite({
   section: string;
 }) {
   const active = menus.find((m) => m.key === section);
+
+  const router = useRouter();
+
+  const [adminLoginOpen, setAdminLoginOpen] = useState(false);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminLoginError, setAdminLoginError] = useState("");
+  const [adminLoginBusy, setAdminLoginBusy] = useState(false);
+
+  async function adminLogin(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    if (adminLoginBusy) return;
+
+    setAdminLoginBusy(true);
+    setAdminLoginError("");
+
+    try {
+      const supabase = createClient();
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: adminEmail,
+        password: adminPassword,
+      });
+
+      if (error) {
+        setAdminLoginError("이메일 또는 비밀번호를 확인해 주세요.");
+        return;
+      }
+
+      setAdminLoginOpen(false);
+
+      router.push("/admin");
+      router.refresh();
+    } catch {
+      setAdminLoginError("로그인 중 문제가 발생했어요.");
+    } finally {
+      setAdminLoginBusy(false);
+    }
+  }
   return (
     <div className={`site ${section === "home" ? "home" : "inner"}`}>
       <Backdrop data={data} />
@@ -153,22 +196,29 @@ export default function FanSite({
   </span>
 </Link>
         <nav aria-label="페이지 메뉴">
-          {menus.map(({ key, label, Icon }) => (
-            <Link
-              key={key}
-              href={`/${key}`}
-              aria-current={section === key ? "page" : undefined}
-            >
-              <Icon size={17} />
-              <span>{label}</span>
-            </Link>
-          ))}
+  {menus.map(({ key, label, Icon }) => (
+    <Link
+      key={key}
+      href={`/${key}`}
+      aria-current={section === key ? "page" : undefined}
+    >
+      <Icon size={17} />
+      <span>{label}</span>
+    </Link>
+  ))}
 
-  <Link href="/admin/login">
+  <a
+    href="/admin/login"
+    onClick={(e) => {
+      e.preventDefault();
+      setAdminLoginError("");
+      setAdminLoginOpen(true);
+    }}
+  >
     <LockKeyhole size={17} />
-    <span>Admin</span>
-  </Link>
-        </nav>
+    <span>관리자</span>
+  </a>
+</nav>
       </header>
       {section === "home" ? (
         <main className="home-main">
@@ -241,11 +291,96 @@ export default function FanSite({
         </main>
       )}
       <footer className="site-footer">
-        <span>{data.name} FAN SPACE</span>
-        <span>팬이 함께하는 공간</span>
+        <span>{data.name} 타마고 WORLD</span>
+        <span>타마고와 함께하는 공간</span>
       </footer>
+    {adminLoginOpen && (
+  <div
+    className="admin-login-overlay"
+    onMouseDown={(e) => {
+      if (e.target === e.currentTarget) {
+        setAdminLoginOpen(false);
+      }
+    }}
+  >
+    <div
+      className="admin-login-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="admin-login-title"
+    >
+      <button
+        type="button"
+        className="admin-login-close"
+        onClick={() => setAdminLoginOpen(false)}
+        aria-label="로그인 창 닫기"
+      >
+        <X size={20} />
+      </button>
+
+      <div className="admin-login-icon">
+        <LockKeyhole size={24} />
+      </div>
+
+      <span className="admin-login-eyebrow">
+        TTOONYANG ADMIN
+      </span>
+
+      <h2 id="admin-login-title">
+        관리자 로그인
+      </h2>
+
+      <p className="admin-login-description">
+        관리자 계정으로 로그인해 주세요.
+      </p>
+
+      <form onSubmit={adminLogin}>
+        <label>
+          이메일
+          <input
+            type="email"
+            value={adminEmail}
+            onChange={(e) => setAdminEmail(e.target.value)}
+            placeholder="이메일"
+            autoComplete="email"
+            required
+          />
+        </label>
+
+        <label>
+          비밀번호
+          <input
+            type="password"
+            value={adminPassword}
+            onChange={(e) => setAdminPassword(e.target.value)}
+            placeholder="비밀번호"
+            autoComplete="current-password"
+            required
+          />
+        </label>
+
+        {adminLoginError && (
+          <p className="admin-login-error">
+            {adminLoginError}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          className="admin-login-submit"
+          disabled={adminLoginBusy}
+        >
+          {adminLoginBusy
+            ? "로그인 중..."
+            : "관리자 로그인"}
+        </button>
+      </form>
     </div>
-  );
+  </div>
+)}
+
+</div>
+);
 }
 function Empty({
   Icon,
