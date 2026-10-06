@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect, } from "react";
 import Link from "next/link";
 import LivePlayer from "./live-player";
 import { useRouter } from "next/navigation";
@@ -161,7 +161,7 @@ const [backgroundIndex, setBackgroundIndex] =
   useState(0);
 
 /* 페이지 이동 후에도 직전 배경 기억 */
-useEffect(() => {
+useLayoutEffect(() => {
   if (!backgroundList.length) return;
 
   const saved = sessionStorage.getItem(
