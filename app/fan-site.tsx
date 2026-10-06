@@ -205,7 +205,7 @@ useLayoutEffect(() => {
   if (!backgroundList.length) return;
 
   const saved = sessionStorage.getItem(
-    "ttoonyang-background-index",
+    "ddocat-background-index",
   );
 
   if (saved === null) return;
@@ -220,7 +220,7 @@ useLayoutEffect(() => {
     setBackgroundIndex(savedIndex);
   } else {
     sessionStorage.setItem(
-      "ttoonyang-background-index",
+      "ddocat-background-index",
       "0",
     );
 
@@ -239,7 +239,7 @@ function changeBackground(index: number) {
   setBackgroundIndex(nextIndex);
 
   sessionStorage.setItem(
-    "ttoonyang-background-index",
+    "ddocat-background-index",
     String(nextIndex),
   );
 }
@@ -447,7 +447,7 @@ const [adminPassword, setAdminPassword] =
       ) : (
         <main className="page-main">
           <div className="page-heading">
-            <span className="eyebrow">TTOONYANG / {section.toUpperCase()}</span>
+            <span className="eyebrow">ddocat / {section.toUpperCase()}</span>
             <h1>
               {active?.label}
               <span>✦</span>
@@ -510,7 +510,7 @@ const [adminPassword, setAdminPassword] =
       </div>
 
       <span className="admin-login-eyebrow">
-        TTOONYANG ADMIN
+        ddocat ADMIN
       </span>
 
       <h2 id="admin-login-title">
