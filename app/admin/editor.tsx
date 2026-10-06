@@ -185,7 +185,7 @@ export default function AdminEditor({
   }
   async function upload(
   file: File | undefined,
-  field: ImageSpecKey,
+  specKey: ImageSpecKey,
   apply: (url: string) => void,
 ) {
   if (!file || uploading.current) return;
@@ -330,7 +330,7 @@ export default function AdminEditor({
       <div className="image-field">
         <span>{label}</span>
         <small className="image-size-guide">
-  권장 및 자동 변환 규격 · {IMAGE_SPECS[specKey].description}
+  권장 및 자동 변환 규격 · {IMAGE_SPECS[field].description}
 </small>
         <div className="upload-preview">
           {data[field] ? (
