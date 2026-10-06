@@ -19,6 +19,7 @@ export const configSchema = z.object({
   background: image,
   mobileBackground: image,
   avatar: image,
+  brandlogo: image.default(""),
   position: z.enum(["left", "center", "right"]),
   mobilePosition: z.enum(["left", "center", "right", "72%"]),
   overlay: z.number().min(0).max(70),
@@ -26,6 +27,7 @@ export const configSchema = z.object({
   soop: link,
   youtube: link,
   cafe: link.default(""),
+  namuwiki: link.default(""),
   vods: z
     .array(
       z.object({
@@ -56,6 +58,7 @@ export const defaults: Config = {
   background: "/images/main-background.png",
   mobileBackground: "",
   avatar: "",
+  brandlogo: "",
   position: "center",
   mobilePosition: "72%",
   overlay: 8,
@@ -63,6 +66,7 @@ export const defaults: Config = {
   soop: "",
   youtube: "",
   cafe: "",
+  namuwiki: "",
   vods: [],
   events: [],
 };

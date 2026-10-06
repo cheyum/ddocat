@@ -118,7 +118,7 @@ export default function AdminEditor({
     field,
   }: {
     label: string;
-    field: "background" | "mobileBackground" | "avatar";
+    field: "background" | "mobileBackground" | "avatar" | "brandlogo";
   }) {
     return (
       <div className="image-field">
@@ -360,12 +360,20 @@ export default function AdminEditor({
                    네이버 카페 주소
                    <input
                      type="url"
-                     placeholder="https://cafe.naver.com/…"
+                     placeholder="https://…"
                      value={data.cafe}
                      onChange={(e) => update("cafe", e.target.value)}
                     />
                   </label>
-
+                  <label>
+                    나무위키 주소
+                    <input
+                      type="url"
+                      placeholder="https://…"
+                      value={data.namuwiki}
+                      onChange={(e) => update("namuwiki", e.target.value)}
+                    />
+                  </label>
                   <label className="wide">
                     프로필 본문
                     <textarea

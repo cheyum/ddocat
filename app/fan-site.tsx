@@ -109,9 +109,16 @@ export function ProfileCard({
   </a>
 )}
       </div>
-      <Link className="profile-more" href="/profile">
-        프로필 보기
-      </Link>
+      {data.namuwiki && (
+  <a
+    className="profile-more"
+    href={data.namuwiki}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    오냥위키 <ExternalLink size={14} />
+  </a>
+)}
     </article>
   );
 }
@@ -128,12 +135,21 @@ export default function FanSite({
       <Backdrop data={data} />
       <header className="site-header">
         <Link href="/" className="brand" aria-label="또오냥 메인">
-          <Cat size={27} strokeWidth={1.7} />
-          <span>
-            {data.name}
-            <small>FAN SPACE</small>
-          </span>
-        </Link>
+  {data.brandLogo ? (
+    <img
+      src={data.brandLogo}
+      alt="또오냥 로고"
+      className="brand-logo"
+    />
+  ) : (
+    <Cat size={27} strokeWidth={1.7} />
+  )}
+
+  <span>
+    {data.name}
+    <small>타마고 WORLD</small>
+  </span>
+</Link>
         <nav aria-label="페이지 메뉴">
           {menus.map(({ key, label, Icon }) => (
             <Link
