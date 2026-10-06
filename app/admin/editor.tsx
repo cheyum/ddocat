@@ -20,10 +20,13 @@ type ImageFieldKey =
   | "background"
   | "mobileBackground"
   | "avatar"
-  | "brandLogo";
+  | "brandlogo";
+  type ImageSpecKey =
+  | ImageFieldKey
+  | "vodThumbnail";
 
 const IMAGE_SPECS: Record<
-  ImageFieldKey,
+  ImageSpecKey,
   {
     width: number;
     height: number;
@@ -52,16 +55,23 @@ const IMAGE_SPECS: Record<
     fit: "cover",
   },
 
-  brandLogo: {
+  brandlogo: {
     width: 512,
     height: 512,
     description: "512 × 512px · 투명 이미지 권장",
     fit: "contain",
   },
+
+  vodThumbnail: {
+    width: 1280,
+    height: 720,
+    description: "1280 × 720px · 16:9",
+    fit: "cover",
+  },
 };
 async function resizeImage(
   file: File,
-  spec: (typeof IMAGE_SPECS)[ImageFieldKey],
+  spec: (typeof IMAGE_SPECS)[ImageSpecKey],
 ) {
   const bitmap = await createImageBitmap(file);
 
@@ -175,7 +185,7 @@ export default function AdminEditor({
   }
   async function upload(
   file: File | undefined,
-  field: ImageFieldKey,
+  field: ImageSpecKey,
   apply: (url: string) => void,
 ) {
   if (!file || uploading.current) return;
@@ -223,7 +233,7 @@ export default function AdminEditor({
 
     const resizedFile = await resizeImage(
       file,
-      IMAGE_SPECS[field],
+      IMAGE_SPECS[specKey],
     );
 
     setMessage("이미지를 올리고 있어요…");
@@ -276,7 +286,7 @@ export default function AdminEditor({
     setDirty(true);
 
     setMessage(
-      `${IMAGE_SPECS[field].description} 규격으로 변환했어요. 저장을 누르면 적용돼요.`,
+      `${IMAGE_SPECS[specKey].description} 규격으로 변환했어요. 저장을 누르면 적용돼요.`,
     );
   } catch (e) {
     setMessage(
@@ -320,7 +330,7 @@ export default function AdminEditor({
       <div className="image-field">
         <span>{label}</span>
         <small className="image-size-guide">
-  권장 및 자동 변환 규격 · {IMAGE_SPECS[field].description}
+  권장 및 자동 변환 규격 · {IMAGE_SPECS[specKey].description}
 </small>
         <div className="upload-preview">
           {data[field] ? (
@@ -671,15 +681,23 @@ export default function AdminEditor({
                           type="file"
                           accept="image/png,image/jpeg,image/webp"
                           onChange={(e) =>
-                            upload(e.target.files?.[0], (url) =>
-                              setData((d) => ({
-                                ...d,
-                                vods: d.vods.map((x) =>
-                                  x.id === v.id ? { ...x, thumbnail: url } : x,
-                                ),
-                              })),
-                            )
-                          }
+  upload(
+    e.target.files?.[0],
+    "vodThumbnail",
+    (url: string) => {
+      setData((d) => ({
+        ...d,
+        vods: d.vods.map((x) =>
+          x.id === v.id
+            ? { ...x, thumbnail: url }
+            : x,
+        ),
+      }));
+
+      setDirty(true);
+    },
+  )
+}
                         />
                       </label>
                       {v.thumbnail && (
