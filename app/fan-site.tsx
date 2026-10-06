@@ -33,21 +33,30 @@ export function Backdrop({
   data: Config;
   background?: string;
 }) {
+  const selectedBackground =
+    background || data.background;
+
   return (
     <div
       className="backdrop"
       aria-hidden="true"
       style={
         {
-          "--pc-bg": background || data.background
-  ? `url("${background || data.background}")`
-  : "none",
+          "--pc-bg": selectedBackground
+            ? `url("${selectedBackground}")`
+            : "none",
+
           "--mobile-bg":
-            data.mobileBackground || data.background
-              ? `url("${data.mobileBackground || data.background}")`
+            data.mobileBackground || selectedBackground
+              ? `url("${
+                  data.mobileBackground ||
+                  selectedBackground
+                }")`
               : "none",
+
           "--bg-position": data.position,
-          "--mobile-position": data.mobilePosition,
+          "--mobile-position":
+            data.mobilePosition,
           "--bg-scale": data.zoom / 100,
           "--shade": data.overlay / 100,
         } as React.CSSProperties
@@ -145,26 +154,62 @@ export default function FanSite({
   const active = menus.find((m) => m.key === section);
   const backgroundList = [
   data.background,
-  ...data.backgrounds,
-].filter(Boolean);
+  ...(data.backgrounds ?? []),
+].filter((value): value is string => Boolean(value));
 
 const [backgroundIndex, setBackgroundIndex] =
   useState(0);
 
-function previousBackground() {
-  setBackgroundIndex((current) =>
-    current <= 0
-      ? backgroundList.length - 1
-      : current - 1,
+/* 페이지 이동 후에도 직전 배경 기억 */
+useEffect(() => {
+  if (!backgroundList.length) return;
+
+  const saved = sessionStorage.getItem(
+    "ttoonyang-background-index",
+  );
+
+  if (saved === null) return;
+
+  const savedIndex = Number(saved);
+
+  if (
+    Number.isInteger(savedIndex) &&
+    savedIndex >= 0 &&
+    savedIndex < backgroundList.length
+  ) {
+    setBackgroundIndex(savedIndex);
+  } else {
+    sessionStorage.setItem(
+      "ttoonyang-background-index",
+      "0",
+    );
+
+    setBackgroundIndex(0);
+  }
+}, [backgroundList.length]);
+
+function changeBackground(index: number) {
+  if (!backgroundList.length) return;
+
+  const nextIndex =
+    ((index % backgroundList.length) +
+      backgroundList.length) %
+    backgroundList.length;
+
+  setBackgroundIndex(nextIndex);
+
+  sessionStorage.setItem(
+    "ttoonyang-background-index",
+    String(nextIndex),
   );
 }
 
+function previousBackground() {
+  changeBackground(backgroundIndex - 1);
+}
+
 function nextBackground() {
-  setBackgroundIndex((current) =>
-    current >= backgroundList.length - 1
-      ? 0
-      : current + 1,
-  );
+  changeBackground(backgroundIndex + 1);
 }
 
   const router = useRouter();
@@ -235,8 +280,7 @@ function nextBackground() {
     </span>
   </Link>
 
-  {section === "home" &&
-    backgroundList.length > 1 && (
+  {backgroundList.length > 1 && (
       <div className="background-switcher">
         <button
           type="button"
