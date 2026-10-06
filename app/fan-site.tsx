@@ -26,6 +26,19 @@ const menus = [
   { key: "calendar", label: "캘린더", Icon: CalendarDays },
   { key: "minigame", label: "미니게임", Icon: Gamepad2 },
 ];
+type AutoVod = {
+  id: string;
+  title: string;
+  thumbnail: string;
+  url: string;
+  publishedAt: string;
+  platform: "soop" | "youtube";
+};
+
+type VodView =
+  | "overview"
+  | "soop"
+  | "youtube";
 export function Backdrop({
   data,
   background,
@@ -434,43 +447,10 @@ const [adminPassword, setAdminPassword] =
             </section>
           )}
           {section === "vod" && (
-            <section className="vod-section">
-              {data.vods.length ? (
-                <div className="vod-grid">
-                  {data.vods.map((v) => (
-                    <a
-                      key={v.id}
-                      className="vod-card panel"
-                      href={v.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <div className="vod-thumb">
-                        {v.thumbnail ? (
-                          <img src={v.thumbnail} alt="" />
-                        ) : (
-                          <Play size={36} />
-                        )}
-                        <span className="play-icon">
-                          <Play size={19} fill="currentColor" />
-                        </span>
-                      </div>
-                      <h2>{v.title}</h2>
-                      <span className="vod-meta">
-                        영상 보러가기 <ExternalLink size={14} />
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              ) : (
-                <Empty
-                  Icon={Play}
-                  title="다시 보고 싶은 순간들"
-                  text="등록된 VOD가 아직 없어요."
-                />
-              )}
-            </section>
-          )}
+  <VodPage
+    youtubeUrl={data.youtube}
+  />
+)}
           {section === "calendar" && <Schedule events={data.events} />}{" "}
           {section === "minigame" && <MemoryGame />}
         </main>
@@ -566,6 +546,388 @@ const [adminPassword, setAdminPassword] =
 
 </div>
 );
+}
+function VodPage({
+  youtubeUrl,
+}: {
+  youtubeUrl: string;
+}) {
+  const [view, setView] =
+    useState<VodView>("overview");
+
+  const [soopVideos, setSoopVideos] =
+    useState<AutoVod[]>([]);
+
+  const [
+    youtubeVideos,
+    setYoutubeVideos,
+  ] = useState<AutoVod[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  useEffect(() => {
+    const controller =
+      new AbortController();
+
+    async function loadVideos() {
+      setLoading(true);
+      setError("");
+
+      try {
+        let youtubeHandle =
+          "@또오냥";
+
+        try {
+          if (youtubeUrl) {
+            const url =
+              new URL(youtubeUrl);
+
+            const part =
+              url.pathname
+                .split("/")
+                .filter(Boolean)
+                .find((value) =>
+                  value.startsWith("@"),
+                );
+
+            if (part) {
+              youtubeHandle =
+                decodeURIComponent(
+                  part,
+                );
+            }
+          }
+        } catch {
+          /* 기본 handle 사용 */
+        }
+
+        const [
+          soopResult,
+          youtubeResult,
+        ] =
+          await Promise.allSettled([
+            fetch(
+              "/api/vod/soop",
+              {
+                signal:
+                  controller.signal,
+              },
+            ).then(
+              async (response) => {
+                if (!response.ok) {
+                  throw new Error(
+                    "SOOP VOD 조회 실패",
+                  );
+                }
+
+                return response.json();
+              },
+            ),
+
+            fetch(
+              `/api/vod/youtube?handle=${encodeURIComponent(
+                youtubeHandle,
+              )}`,
+              {
+                signal:
+                  controller.signal,
+              },
+            ).then(
+              async (response) => {
+                if (!response.ok) {
+                  throw new Error(
+                    "YouTube 영상 조회 실패",
+                  );
+                }
+
+                return response.json();
+              },
+            ),
+          ]);
+
+        if (
+          soopResult.status ===
+          "fulfilled"
+        ) {
+          setSoopVideos(
+            Array.isArray(
+              soopResult.value
+                ?.videos,
+            )
+              ? soopResult.value
+                  .videos
+              : [],
+          );
+        }
+
+        if (
+          youtubeResult.status ===
+          "fulfilled"
+        ) {
+          setYoutubeVideos(
+            Array.isArray(
+              youtubeResult.value
+                ?.videos,
+            )
+              ? youtubeResult.value
+                  .videos
+              : [],
+          );
+        }
+
+        if (
+          soopResult.status ===
+            "rejected" &&
+          youtubeResult.status ===
+            "rejected"
+        ) {
+          setError(
+            "영상을 불러오지 못했어요.",
+          );
+        }
+      } catch (error) {
+        if (
+          error instanceof
+            DOMException &&
+          error.name ===
+            "AbortError"
+        ) {
+          return;
+        }
+
+        setError(
+          "영상을 불러오지 못했어요.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadVideos();
+
+    return () => {
+      controller.abort();
+    };
+  }, [youtubeUrl]);
+
+  function changeView(
+    next: "soop" | "youtube",
+  ) {
+    setView((current) =>
+      current === next
+        ? "overview"
+        : next,
+    );
+  }
+
+  if (loading) {
+    return (
+      <section className="vod-section">
+        <div className="vod-loading panel">
+          <Play
+            size={34}
+            strokeWidth={1.3}
+          />
+
+          <p>
+            최신 영상을 불러오고
+            있어요.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="vod-section">
+      <div className="vod-platform-tabs">
+        <button
+          type="button"
+          className={
+            view === "soop"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            changeView("soop")
+          }
+        >
+          SOOP
+        </button>
+
+        <button
+          type="button"
+          className={
+            view === "youtube"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            changeView(
+              "youtube",
+            )
+          }
+        >
+          YouTube
+        </button>
+      </div>
+
+      {error && (
+        <p className="vod-error">
+          {error}
+        </p>
+      )}
+
+      {view === "overview" && (
+        <div className="vod-overview">
+          <VodGroup
+            title="SOOP 최신 VOD"
+            videos={soopVideos.slice(
+              0,
+              3,
+            )}
+            emptyText="SOOP VOD가 아직 없어요."
+            onMore={() =>
+              setView("soop")
+            }
+          />
+
+          <VodGroup
+            title="YouTube 최신 영상"
+            videos={youtubeVideos.slice(
+              0,
+              3,
+            )}
+            emptyText="YouTube 영상이 아직 없어요."
+            onMore={() =>
+              setView("youtube")
+            }
+          />
+        </div>
+      )}
+
+      {view === "soop" && (
+        <VodGroup
+          title="SOOP VOD"
+          videos={soopVideos}
+          emptyText="SOOP VOD가 아직 없어요."
+        />
+      )}
+
+      {view === "youtube" && (
+        <VodGroup
+          title="YouTube"
+          videos={youtubeVideos}
+          emptyText="YouTube 영상이 아직 없어요."
+        />
+      )}
+    </section>
+  );
+}
+function VodGroup({
+  title,
+  videos,
+  emptyText,
+  onMore,
+}: {
+  title: string;
+  videos: AutoVod[];
+  emptyText: string;
+  onMore?: () => void;
+}) {
+  return (
+    <section className="vod-platform-group">
+      <div className="vod-group-heading">
+        <h2>{title}</h2>
+
+        {onMore && (
+          <button
+            type="button"
+            onClick={onMore}
+          >
+            전체보기
+          </button>
+        )}
+      </div>
+
+      {videos.length ? (
+        <div className="vod-grid">
+          {videos.map((video) => (
+            <VodCard
+              key={`${video.platform}-${video.id}`}
+              video={video}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="empty panel">
+          <Play
+            size={36}
+            strokeWidth={1.2}
+          />
+
+          <h2>
+            {emptyText}
+          </h2>
+        </div>
+      )}
+    </section>
+  );
+}
+function VodCard({
+  video,
+}: {
+  video: AutoVod;
+}) {
+  return (
+    <a
+      className="vod-card panel"
+      href={video.url}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <div className="vod-thumb">
+        {video.thumbnail ? (
+          <img
+            src={video.thumbnail}
+            alt=""
+            loading="lazy"
+          />
+        ) : (
+          <Play size={36} />
+        )}
+
+        <span className="play-icon">
+          <Play
+            size={19}
+            fill="currentColor"
+          />
+        </span>
+
+        <span className="vod-platform-badge">
+          {video.platform ===
+          "youtube"
+            ? "YouTube"
+            : "SOOP"}
+        </span>
+      </div>
+
+      <h2>
+        {video.title}
+      </h2>
+
+      <span className="vod-meta">
+        영상 보러가기
+        <ExternalLink
+          size={14}
+        />
+      </span>
+    </a>
+  );
 }
 function Empty({
   Icon,

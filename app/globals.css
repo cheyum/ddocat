@@ -1700,3 +1700,180 @@ p {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+/* ==========================================
+   VOD 플랫폼 선택
+========================================== */
+
+.vod-platform-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 30px;
+}
+
+.vod-platform-tabs button {
+  min-width: 120px;
+
+  padding: 11px 22px;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.15);
+
+  border-radius: 14px;
+
+  background:
+    rgba(15, 27, 50, 0.45);
+
+  color:
+    rgba(255, 255, 255, 0.7);
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  backdrop-filter: blur(12px);
+
+  transition:
+    transform 0.2s,
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.vod-platform-tabs button:hover {
+  transform: translateY(-1px);
+
+  color: white;
+
+  background:
+    rgba(255, 255, 255, 0.1);
+}
+
+.vod-platform-tabs button.active {
+  color: white;
+
+  border-color:
+    rgba(154, 183, 255, 0.65);
+
+  background:
+    rgba(87, 115, 190, 0.45);
+
+  box-shadow:
+    0 0 25px
+    rgba(107, 139, 220, 0.18);
+}
+
+
+/* ==========================================
+   VOD 그룹
+========================================== */
+
+.vod-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+}
+
+.vod-platform-group {
+  width: 100%;
+}
+
+.vod-group-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 16px;
+}
+
+.vod-group-heading h2 {
+  margin: 0;
+
+  color: white;
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.vod-group-heading button {
+  padding: 7px 12px;
+
+  border: 0;
+
+  background: transparent;
+
+  color:
+    rgba(255, 255, 255, 0.6);
+
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.vod-group-heading button:hover {
+  color: white;
+}
+
+
+/* 플랫폼 배지 */
+
+.vod-platform-badge {
+  position: absolute;
+
+  top: 10px;
+  left: 10px;
+
+  padding: 5px 8px;
+
+  border-radius: 8px;
+
+  background:
+    rgba(8, 15, 29, 0.72);
+
+  color: white;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  backdrop-filter: blur(8px);
+}
+
+.vod-thumb {
+  position: relative;
+}
+
+
+/* 로딩 */
+
+.vod-loading {
+  min-height: 240px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 14px;
+}
+
+.vod-loading p {
+  margin: 0;
+
+  color:
+    rgba(255, 255, 255, 0.65);
+
+  font-size: 12px;
+}
+
+.vod-error {
+  margin: 0 0 20px;
+
+  color: #ffb1b1;
+
+  font-size: 12px;
+}
