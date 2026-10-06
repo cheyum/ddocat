@@ -219,9 +219,9 @@ function nextBackground() {
     className="brand"
     aria-label="또오냥 메인"
   >
-    {data.brandLogo ? (
+    {data.brandlogo ? (
       <img
-        src={data.brandLogo}
+        src={data.brandlogo}
         alt="또오냥 로고"
         className="brand-logo"
       />
