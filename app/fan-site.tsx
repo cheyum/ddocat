@@ -471,7 +471,9 @@ const [adminPassword, setAdminPassword] =
     resetKey={vodResetKey}
   />
 )}
-          {section === "calendar" && <Schedule events={data.events} />}{" "}
+          {section === "calendar" && (
+  <SoopCalendar />
+)}
           {section === "minigame" && <MemoryGame />}
         </main>
       )}
@@ -966,7 +968,429 @@ function Empty({
     </div>
   );
 }
-function Schedule({ events }: { events: Config["events"] }) {
+type CalendarEvent = {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  kind: string;
+};
+
+function getKoreaNow() {
+  return new Date(
+    new Date().toLocaleString(
+      "en-US",
+      {
+        timeZone:
+          "Asia/Seoul",
+      },
+    ),
+  );
+}
+
+function SoopCalendar() {
+  const now =
+    getKoreaNow();
+
+  const [
+    month,
+    setMonth,
+  ] = useState({
+    year: now.getFullYear(),
+    month: now.getMonth(),
+  });
+
+  const [
+    selected,
+    setSelected,
+  ] = useState(
+    `${now.getFullYear()}-${String(
+      now.getMonth() + 1,
+    ).padStart(
+      2,
+      "0",
+    )}-${String(
+      now.getDate(),
+    ).padStart(
+      2,
+      "0",
+    )}`,
+  );
+
+  const [
+    events,
+    setEvents,
+  ] =
+    useState<
+      CalendarEvent[]
+    >([]);
+
+  const [
+    loading,
+    setLoading,
+  ] =
+    useState(true);
+
+  const [
+    error,
+    setError,
+  ] =
+    useState("");
+
+  /*
+    현재 보고 있는 달의
+    SOOP 일정 자동 조회
+  */
+  useEffect(() => {
+    const controller =
+      new AbortController();
+
+    async function load() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response =
+          await fetch(
+            `/api/calendar/soop?year=${month.year}&month=${month.month + 1}`,
+            {
+              signal:
+                controller.signal,
+            },
+          );
+
+        if (
+          !response.ok
+        ) {
+          throw new Error(
+            "캘린더 조회 실패",
+          );
+        }
+
+        const data =
+          await response.json();
+
+        setEvents(
+          Array.isArray(
+            data.events,
+          )
+            ? data.events
+            : [],
+        );
+      } catch (error) {
+        if (
+          error instanceof
+            DOMException &&
+          error.name ===
+            "AbortError"
+        ) {
+          return;
+        }
+
+        setEvents([]);
+
+        setError(
+          "SOOP 일정을 불러오지 못했어요.",
+        );
+      } finally {
+        if (
+          !controller
+            .signal
+            .aborted
+        ) {
+          setLoading(false);
+        }
+      }
+    }
+
+    load();
+
+    return () => {
+      controller.abort();
+    };
+  }, [
+    month.year,
+    month.month,
+  ]);
+
+  const prefix =
+    `${month.year}-${String(
+      month.month + 1,
+    ).padStart(
+      2,
+      "0",
+    )}`;
+
+  const first =
+    new Date(
+      month.year,
+      month.month,
+      1,
+    ).getDay();
+
+  const days =
+    new Date(
+      month.year,
+      month.month + 1,
+      0,
+    ).getDate();
+
+  function move(
+    value: number,
+  ) {
+    const next =
+      new Date(
+        month.year,
+        month.month +
+          value,
+        1,
+      );
+
+    setMonth({
+      year:
+        next.getFullYear(),
+
+      month:
+        next.getMonth(),
+    });
+
+    setSelected("");
+  }
+
+  const list =
+    events
+      .filter((event) =>
+        selected
+          ? event.date ===
+            selected
+          : event.date.startsWith(
+              prefix,
+            ),
+      )
+      .sort(
+        (a, b) =>
+          (
+            a.date +
+            a.time
+          ).localeCompare(
+            b.date +
+              b.time,
+          ),
+      );
+
+  return (
+    <section className="calendar-layout">
+      <div className="panel calendar">
+
+        <div className="calendar-heading">
+          <h2>
+            {month.year}.{" "}
+            {String(
+              month.month + 1,
+            ).padStart(
+              2,
+              "0",
+            )}
+          </h2>
+
+          <div>
+            <button
+              aria-label="이전 달"
+              onClick={() =>
+                move(-1)
+              }
+            >
+              <ChevronLeft
+                size={20}
+              />
+            </button>
+
+            <button
+              aria-label="다음 달"
+              onClick={() =>
+                move(1)
+              }
+            >
+              <ChevronRight
+                size={20}
+              />
+            </button>
+          </div>
+        </div>
+
+        <div className="calendar-grid">
+          {[
+            "일",
+            "월",
+            "화",
+            "수",
+            "목",
+            "금",
+            "토",
+          ].map(
+            (day) => (
+              <span
+                className="weekday"
+                key={day}
+              >
+                {day}
+              </span>
+            ),
+          )}
+
+          {Array.from({
+            length: first,
+          }).map(
+            (_, index) => (
+              <span
+                key={`blank-${index}`}
+              />
+            ),
+          )}
+
+          {Array.from({
+            length: days,
+          }).map(
+            (_, index) => {
+              const date =
+                `${prefix}-${String(
+                  index + 1,
+                ).padStart(
+                  2,
+                  "0",
+                )}`;
+
+              const has =
+                events.some(
+                  (event) =>
+                    event.date ===
+                    date,
+                );
+
+              return (
+                <button
+                  className={
+                    `day ${
+                      selected ===
+                      date
+                        ? "selected"
+                        : ""
+                    }`
+                  }
+                  key={date}
+                  onClick={() =>
+                    setSelected(
+                      selected ===
+                        date
+                        ? ""
+                        : date,
+                    )
+                  }
+                  aria-pressed={
+                    selected ===
+                    date
+                  }
+                >
+                  <span>
+                    {index + 1}
+                  </span>
+
+                  {has && (
+                    <span className="event-dot" />
+                  )}
+                </button>
+              );
+            },
+          )}
+        </div>
+      </div>
+
+
+      <aside className="panel agenda">
+        <span className="eyebrow">
+          SOOP SCHEDULE
+        </span>
+
+        <h2>
+          {selected
+            ? selected
+                .slice(5)
+                .replace(
+                  "-",
+                  "월 ",
+                ) +
+              "일"
+            : "이번 달"}{" "}
+          일정
+        </h2>
+
+        {loading ? (
+          <div className="agenda-empty">
+            <CalendarDays
+              size={28}
+            />
+
+            <p>
+              SOOP 일정을
+              불러오고 있어요.
+            </p>
+          </div>
+        ) : error ? (
+          <div className="agenda-empty">
+            <CalendarDays
+              size={28}
+            />
+
+            <p>
+              {error}
+            </p>
+          </div>
+        ) : list.length ? (
+          list.map(
+            (event) => (
+              <article
+                className="event"
+                key={
+                  event.id
+                }
+              >
+                <span className="event-kind">
+                  {
+                    event.kind
+                  }
+                </span>
+
+                <h3>
+                  {
+                    event.title
+                  }
+                </h3>
+
+                <p>
+                  {event.date}
+                  {event.time
+                    ? ` · ${event.time}`
+                    : ""}
+                </p>
+              </article>
+            ),
+          )
+        ) : (
+          <div className="agenda-empty">
+            <CalendarDays
+              size={28}
+            />
+
+            <p>
+              등록된 일정이
+              없어요.
+            </p>
+          </div>
+        )}
+      </aside>
+    </section>
+  );
+}
   const [month, setMonth] = useState({ year: 2026, month: 9 }),
     [selected, setSelected] = useState("");
   useEffect(() => {
