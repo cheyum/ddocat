@@ -16,6 +16,135 @@ import { createClient } from "../../lib/supabase/client";
 import { IMAGE_BUCKET } from "../../lib/supabase/config";
 import type { Config } from "../site-model";
 import { Backdrop, ProfileCard } from "../fan-site";
+type ImageFieldKey =
+  | "background"
+  | "mobileBackground"
+  | "avatar"
+  | "brandLogo";
+
+const IMAGE_SPECS: Record<
+  ImageFieldKey,
+  {
+    width: number;
+    height: number;
+    description: string;
+    fit: "cover" | "contain";
+  }
+> = {
+  background: {
+    width: 1920,
+    height: 1080,
+    description: "1920 × 1080px · 16:9",
+    fit: "cover",
+  },
+
+  mobileBackground: {
+    width: 1080,
+    height: 1920,
+    description: "1080 × 1920px · 9:16",
+    fit: "cover",
+  },
+
+  avatar: {
+    width: 800,
+    height: 800,
+    description: "800 × 800px · 정사각형",
+    fit: "cover",
+  },
+
+  brandLogo: {
+    width: 512,
+    height: 512,
+    description: "512 × 512px · 투명 이미지 권장",
+    fit: "contain",
+  },
+};
+async function resizeImage(
+  file: File,
+  spec: (typeof IMAGE_SPECS)[ImageFieldKey],
+) {
+  const bitmap = await createImageBitmap(file);
+
+  const canvas = document.createElement("canvas");
+
+  canvas.width = spec.width;
+  canvas.height = spec.height;
+
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    throw new Error("이미지를 처리하지 못했어요.");
+  }
+
+  ctx.clearRect(0, 0, spec.width, spec.height);
+
+  if (spec.fit === "contain") {
+    const scale = Math.min(
+      spec.width / bitmap.width,
+      spec.height / bitmap.height,
+    );
+
+    const width = bitmap.width * scale;
+    const height = bitmap.height * scale;
+
+    const x = (spec.width - width) / 2;
+    const y = (spec.height - height) / 2;
+
+    ctx.drawImage(bitmap, x, y, width, height);
+  } else {
+    const sourceRatio = bitmap.width / bitmap.height;
+    const targetRatio = spec.width / spec.height;
+
+    let sx = 0;
+    let sy = 0;
+    let sw = bitmap.width;
+    let sh = bitmap.height;
+
+    if (sourceRatio > targetRatio) {
+      sw = bitmap.height * targetRatio;
+      sx = (bitmap.width - sw) / 2;
+    } else {
+      sh = bitmap.width / targetRatio;
+      sy = (bitmap.height - sh) / 2;
+    }
+
+    ctx.drawImage(
+      bitmap,
+      sx,
+      sy,
+      sw,
+      sh,
+      0,
+      0,
+      spec.width,
+      spec.height,
+    );
+  }
+
+  bitmap.close();
+
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (result) => {
+        if (result) {
+          resolve(result);
+        } else {
+          reject(new Error("이미지 변환에 실패했어요."));
+        }
+      },
+      "image/webp",
+      0.92,
+    );
+  });
+
+  return new File(
+    [blob],
+    `image-${Date.now()}.webp`,
+    {
+      type: "image/webp",
+    },
+  );
+}
 export default function AdminEditor({
   initial,
 }: {
@@ -44,55 +173,122 @@ export default function AdminEditor({
     setDirty(true);
     setMessage("");
   }
-  async function upload(file: File | undefined, apply: (url: string) => void) {
-    if (!file || uploading.current) return;
-    uploading.current = true;
-    setBusy(true);
-    setMessage("이미지를 올리고 있어요…");
-    try {
-      if (file.size > 10 * 1024 * 1024 || file.size < 12)
-        throw new Error("10MB 이하 JPG, PNG, WebP 이미지를 선택해 주세요.");
-      const u = new Uint8Array(await file.slice(0, 12).arrayBuffer());
-      let mime = "";
-      if (u[0] === 255 && u[1] === 216 && u[2] === 255) mime = "image/jpeg";
-      else if (u.slice(0, 8).join(",") === "137,80,78,71,13,10,26,10")
-        mime = "image/png";
-      else if (
-        String.fromCharCode(...u.slice(0, 4)) === "RIFF" &&
-        String.fromCharCode(...u.slice(8, 12)) === "WEBP"
-      )
-        mime = "image/webp";
-      if (!mime) throw new Error("JPG, PNG, WebP만 지원해요.");
-      const r = await fetch("/api/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contentType: mime, size: file.size }),
-      });
-      const v = (await r.json()) as {
-        error?: string;
-        url: string;
-        path: string;
-        token: string;
-      };
-      if (!r.ok) throw new Error(v.error);
-      const { error } = await createClient()
-        .storage.from(IMAGE_BUCKET)
-        .uploadToSignedUrl(v.path, v.token, file, {
-          contentType: mime,
-          cacheControl: "31536000",
-        });
-      if (error)
-        throw new Error("이미지를 올리지 못했어요. 다시 시도해 주세요.");
-      apply(v.url);
-      setDirty(true);
-      setMessage("이미지를 올렸어요. 저장을 누르면 적용돼요.");
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : "업로드하지 못했어요.");
-    } finally {
-      uploading.current = false;
-      setBusy(false);
+  async function upload(
+  file: File | undefined,
+  field: ImageFieldKey,
+  apply: (url: string) => void,
+) {
+  if (!file || uploading.current) return;
+
+  uploading.current = true;
+  setBusy(true);
+  setMessage("이미지를 규격에 맞게 조절하고 있어요…");
+
+  try {
+    if (file.size > 10 * 1024 * 1024 || file.size < 12) {
+      throw new Error(
+        "10MB 이하 JPG, PNG, WebP 이미지를 선택해 주세요.",
+      );
     }
+
+    const u = new Uint8Array(
+      await file.slice(0, 12).arrayBuffer(),
+    );
+
+    let valid = false;
+
+    if (
+      u[0] === 255 &&
+      u[1] === 216 &&
+      u[2] === 255
+    ) {
+      valid = true;
+    } else if (
+      u.slice(0, 8).join(",") ===
+      "137,80,78,71,13,10,26,10"
+    ) {
+      valid = true;
+    } else if (
+      String.fromCharCode(...u.slice(0, 4)) === "RIFF" &&
+      String.fromCharCode(...u.slice(8, 12)) === "WEBP"
+    ) {
+      valid = true;
+    }
+
+    if (!valid) {
+      throw new Error(
+        "JPG, PNG, WebP만 지원해요.",
+      );
+    }
+
+    const resizedFile = await resizeImage(
+      file,
+      IMAGE_SPECS[field],
+    );
+
+    setMessage("이미지를 올리고 있어요…");
+
+    const r = await fetch("/api/upload", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contentType: resizedFile.type,
+        size: resizedFile.size,
+      }),
+    });
+
+    const v = (await r.json()) as {
+      error?: string;
+      path: string;
+      token: string;
+      url: string;
+    };
+
+    if (!r.ok) {
+      throw new Error(
+        v.error || "업로드 준비에 실패했어요.",
+      );
+    }
+
+    const { error } = await createClient()
+      .storage
+      .from(IMAGE_BUCKET)
+      .uploadToSignedUrl(
+        v.path,
+        v.token,
+        resizedFile,
+        {
+          contentType: resizedFile.type,
+          cacheControl: "31536000",
+        },
+      );
+
+    if (error) {
+      throw new Error(
+        "이미지를 올리지 못했어요. 다시 시도해 주세요.",
+      );
+    }
+
+    apply(v.url);
+
+    setDirty(true);
+
+    setMessage(
+      `${IMAGE_SPECS[field].description} 규격으로 변환했어요. 저장을 누르면 적용돼요.`,
+    );
+  } catch (e) {
+    setMessage(
+      e instanceof Error
+        ? e.message
+        : "업로드하지 못했어요.",
+    );
+  } finally {
+    uploading.current = false;
+    setBusy(false);
   }
+}
   async function save() {
     setBusy(true);
     setMessage("저장 중…");
@@ -114,15 +310,18 @@ export default function AdminEditor({
     }
   }
   function ImageField({
-    label,
-    field,
-  }: {
-    label: string;
-    field: "background" | "mobileBackground" | "avatar" | "brandlogo";
-  }) {
+  label,
+  field,
+}: {
+  label: string;
+  field: ImageFieldKey;
+}) {
     return (
       <div className="image-field">
         <span>{label}</span>
+        <small className="image-size-guide">
+  권장 및 자동 변환 규격 · {IMAGE_SPECS[field].description}
+</small>
         <div className="upload-preview">
           {data[field] ? (
             <img src={data[field]} alt={label} />
@@ -137,8 +336,12 @@ export default function AdminEditor({
             accept="image/png,image/jpeg,image/webp"
             disabled={busy}
             onChange={(e) =>
-              upload(e.target.files?.[0], (url) => update(field, url))
-            }
+  upload(
+    e.target.files?.[0],
+    field,
+    (url) => update(field, url),
+  )
+}
           />
         </label>
         {data[field] && (
