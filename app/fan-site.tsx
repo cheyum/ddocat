@@ -254,6 +254,9 @@ function nextBackground() {
 
 const router = useRouter();
 
+const [vodResetKey, setVodResetKey] =
+  useState(0);
+
 
 /* ========================================
    다른 팬페이지를 미리 불러오기
@@ -394,16 +397,32 @@ const [adminPassword, setAdminPassword] =
 </div>
         <nav aria-label="페이지 메뉴">
   {menus.map(({ key, label, Icon }) => (
-    <Link
-      key={key}
-      href={`/${key}`}
-      prefetch={true}
-      aria-current={section === key ? "page" : undefined}
-    >
-      <Icon size={17} />
-      <span>{label}</span>
-    </Link>
-  ))}
+  <Link
+    key={key}
+    href={`/${key}`}
+    prefetch={true}
+    aria-current={
+      section === key
+        ? "page"
+        : undefined
+    }
+    onClick={(e) => {
+      if (
+        key === "vod" &&
+        section === "vod"
+      ) {
+        e.preventDefault();
+
+        setVodResetKey(
+          (current) => current + 1,
+        );
+      }
+    }}
+  >
+    <Icon size={17} />
+    <span>{label}</span>
+  </Link>
+))}
 
   <a
     href="/admin/login"
@@ -449,6 +468,7 @@ const [adminPassword, setAdminPassword] =
           {section === "vod" && (
   <VodPage
     youtubeUrl={data.youtube}
+    resetKey={vodResetKey}
   />
 )}
           {section === "calendar" && <Schedule events={data.events} />}{" "}
@@ -549,11 +569,16 @@ const [adminPassword, setAdminPassword] =
 }
 function VodPage({
   youtubeUrl,
+  resetKey,
 }: {
   youtubeUrl: string;
+  resetKey: number;
 }) {
   const [view, setView] =
     useState<VodView>("overview");
+    useEffect(() => {
+  setView("overview");
+}, [resetKey]);
 
   const [soopVideos, setSoopVideos] =
     useState<AutoVod[]>([]);
