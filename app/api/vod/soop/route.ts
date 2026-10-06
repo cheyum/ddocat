@@ -59,6 +59,65 @@ function getThumbnail(value: unknown): string {
   return "";
 }
 
+async function getVodThumbnail(
+  titleNo: string,
+) {
+  try {
+    const body = new URLSearchParams();
+
+    body.set(
+      "nTitleNo",
+      titleNo,
+    );
+
+    body.set(
+      "nApiLevel",
+      "10",
+    );
+
+    const response = await fetch(
+      "https://api.m.sooplive.com/station/video/a/view",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/x-www-form-urlencoded; charset=UTF-8",
+
+          Referer:
+            `https://vod.sooplive.com/player/${titleNo}`,
+        },
+
+        body: body.toString(),
+
+        next: {
+          revalidate: 3600,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      return "";
+    }
+
+    const json =
+      await response.json();
+
+    const thumb =
+      json?.data?.thumb;
+
+    if (
+      typeof thumb === "string"
+    ) {
+      return thumb;
+    }
+
+    return "";
+  } catch {
+    return "";
+  }
+}
+
 export async function GET() {
   try {
     const apiUrl = new URL(
@@ -95,49 +154,55 @@ export async function GET() {
       ? json.data
       : [];
 
-    const videos = source
-      .map((item: any) => {
-        const id = String(
-          item.title_no ?? "",
-        );
-
-        return {
-          id,
-
-          title: String(
-            item.title_name ??
-              item.title ??
-              "제목 없는 영상",
-          ),
-
-          thumbnail: getThumbnail(
-            item.thumb ??
-              item.thumbnail ??
-              item.thumb_url,
-          ),
-
-          url: id
-            ? `https://vod.sooplive.com/player/${id}`
-            : "",
-
-          publishedAt: String(
-            item.reg_date ??
-              item.write_date ??
-              item.regDate ??
-              "",
-          ),
-
-          platform: "soop",
-        };
-      })
-      .filter(
-        (video: { id: string; url: string }) =>
-          video.id && video.url,
+    const videos = await Promise.all(
+  source.map(
+    async (item: any) => {
+      const id = String(
+        item.title_no ?? "",
       );
+
+      const thumbnail =
+        id
+          ? await getVodThumbnail(id)
+          : "";
+
+      return {
+        id,
+
+        title: String(
+          item.title_name ??
+            item.title ??
+            "제목 없는 영상",
+        ),
+
+        thumbnail,
+
+        url: id
+          ? `https://vod.sooplive.com/player/${id}`
+          : "",
+
+        publishedAt: String(
+          item.reg_date ??
+            item.write_date ??
+            item.regDate ??
+            "",
+        ),
+
+        platform: "soop",
+      };
+    },
+  ),
+);
+      const filteredVideos =
+  videos.filter(
+    (video) =>
+      video.id &&
+      video.url,
+  );
 
     return NextResponse.json(
       {
-        videos,
+        videos: filteredVideos,
       },
       {
         headers: {

@@ -920,12 +920,7 @@ function VodCard({
         {video.title}
       </h2>
 
-      <span className="vod-meta">
-        영상 보러가기
-        <ExternalLink
-          size={14}
-        />
-      </span>
+
     </a>
   );
 }
