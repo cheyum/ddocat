@@ -1116,49 +1116,47 @@ function SoopCalendar() {
     <section className="soop-calendar-page">
       <div className="schedule-calendar panel">
         <div className="schedule-calendar-header">
-          <div>
-            <span className="eyebrow">
-              SOOP SCHEDULE
-            </span>
+  <div className="schedule-calendar-label">
+     또오냥 일정
+  </div>
 
-            <h2>
-              {month.year}.{" "}
-              {String(
-                month.month + 1,
-              ).padStart(2, "0")}
-            </h2>
-          </div>
+  <h2 className="schedule-calendar-month">
+    {month.year}.{" "}
+    {String(
+      month.month + 1,
+    ).padStart(2, "0")}
+  </h2>
 
-          <div className="schedule-calendar-controls">
-            <button
-              type="button"
-              className="calendar-today-button"
-              onClick={goToday}
-            >
-              오늘
-            </button>
+  <div className="schedule-calendar-controls">
+    <button
+      type="button"
+      className="calendar-today-button"
+      onClick={goToday}
+    >
+      오늘
+    </button>
 
-            <button
-              type="button"
-              aria-label="이전 달"
-              onClick={() =>
-                moveMonth(-1)
-              }
-            >
-              <ChevronLeft size={20} />
-            </button>
+    <button
+      type="button"
+      aria-label="이전 달"
+      onClick={() =>
+        moveMonth(-1)
+      }
+    >
+      <ChevronLeft size={19} />
+    </button>
 
-            <button
-              type="button"
-              aria-label="다음 달"
-              onClick={() =>
-                moveMonth(1)
-              }
-            >
-              <ChevronRight size={20} />
-            </button>
-          </div>
-        </div>
+    <button
+      type="button"
+      aria-label="다음 달"
+      onClick={() =>
+        moveMonth(1)
+      }
+    >
+      <ChevronRight size={19} />
+    </button>
+  </div>
+</div>
 
         {loading && (
           <div className="schedule-status">
