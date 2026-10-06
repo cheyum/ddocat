@@ -1903,7 +1903,7 @@ p {
 }
 
 
-/* 왼쪽 SOOP SCHEDULE */
+/* 왼쪽 또오냥 일정 */
 
 .schedule-calendar-label {
   justify-self: start;
@@ -1911,7 +1911,7 @@ p {
   color:
     rgba(210, 224, 255, 0.85);
 
-  font-size: 11px;
+  font-size: 26px;
   font-weight: 900;
 
   letter-spacing: 1.8px;
