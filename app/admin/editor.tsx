@@ -249,6 +249,7 @@ export default function AdminEditor({
                   <div className="image-fields">
                     <ImageField label="PC 배경" field="background" />
                     <ImageField label="모바일 배경" field="mobileBackground" />
+                    <ImageField label="상단 로고 이미지" field="brandlogo" />
                   </div>
                   <div className="form-grid">
                     <label>

@@ -94,7 +94,7 @@ export function ProfileCard({
             rel="noopener noreferrer"
           >
             <Play size={16} />
-            YouTube
+            또오냥 유튜브
           </a>
         )}
         {data.cafe && (
@@ -105,18 +105,19 @@ export function ProfileCard({
     rel="noopener noreferrer"
   >
     <ExternalLink size={16} />
-    네이버 카페
+    또오냥 팬카페
   </a>
 )}
       </div>
       {data.namuwiki && (
   <a
-    className="profile-more"
+    className="secondary-link"
     href={data.namuwiki}
     target="_blank"
     rel="noopener noreferrer"
   >
-    오냥위키 <ExternalLink size={14} />
+    <ExternalLink size={16} />
+    또오냥 위키
   </a>
 )}
     </article>
