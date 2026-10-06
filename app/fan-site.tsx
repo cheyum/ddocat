@@ -752,55 +752,79 @@ function VodPage({
   }
 
   if (loading) {
-    return (
-      <section className="vod-section">
-        <div className="vod-loading panel">
+  return (
+    <section className="vod-section">
+      <div className="panel vod-shell">
+        <div className="vod-shell-header">
+          <div className="vod-shell-title">
+            <span className="eyebrow">
+              VIDEO ARCHIVE
+            </span>
+
+            <h2>
+              또오냥 영상 모아보기
+            </h2>
+          </div>
+        </div>
+
+        <div className="vod-loading">
           <Play
             size={34}
             strokeWidth={1.3}
           />
 
           <p>
-            최신 영상을 불러오고
-            있어요.
+            최신 영상을 불러오고 있어요.
           </p>
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
+}
 
-  return (
-    <section className="vod-section">
-      <div className="vod-platform-tabs">
-        <button
-          type="button"
-          className={
-            view === "soop"
-              ? "active"
-              : ""
-          }
-          onClick={() =>
-            changeView("soop")
-          }
-        >
-          SOOP
-        </button>
+return (
+  <section className="vod-section">
+    <div className="panel vod-shell">
+      <div className="vod-shell-header">
+        <div className="vod-shell-title">
+          <span className="eyebrow">
+            VIDEO ARCHIVE
+          </span>
 
-        <button
-          type="button"
-          className={
-            view === "youtube"
-              ? "active"
-              : ""
-          }
-          onClick={() =>
-            changeView(
-              "youtube",
-            )
-          }
-        >
-          YouTube
-        </button>
+          <h2>
+            또오냥 영상 모아보기
+          </h2>
+        </div>
+
+        <div className="vod-platform-tabs">
+          <button
+            type="button"
+            className={
+              view === "soop"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              changeView("soop")
+            }
+          >
+            SOOP
+          </button>
+
+          <button
+            type="button"
+            className={
+              view === "youtube"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              changeView("youtube")
+            }
+          >
+            YouTube
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -809,51 +833,54 @@ function VodPage({
         </p>
       )}
 
-      {view === "overview" && (
-        <div className="vod-overview">
+      <div className="vod-shell-content">
+        {view === "overview" && (
+          <div className="vod-overview">
+            <VodGroup
+              title="SOOP 최신 VOD"
+              videos={soopVideos.slice(
+                0,
+                3,
+              )}
+              emptyText="SOOP VOD가 아직 없어요."
+              onMore={() =>
+                setView("soop")
+              }
+            />
+
+            <VodGroup
+              title="YouTube 최신 영상"
+              videos={youtubeVideos.slice(
+                0,
+                3,
+              )}
+              emptyText="YouTube 영상이 아직 없어요."
+              onMore={() =>
+                setView("youtube")
+              }
+            />
+          </div>
+        )}
+
+        {view === "soop" && (
           <VodGroup
-            title="SOOP 최신 VOD"
-            videos={soopVideos.slice(
-              0,
-              3,
-            )}
+            title="SOOP VOD"
+            videos={soopVideos}
             emptyText="SOOP VOD가 아직 없어요."
-            onMore={() =>
-              setView("soop")
-            }
           />
+        )}
 
+        {view === "youtube" && (
           <VodGroup
-            title="YouTube 최신 영상"
-            videos={youtubeVideos.slice(
-              0,
-              3,
-            )}
+            title="YouTube"
+            videos={youtubeVideos}
             emptyText="YouTube 영상이 아직 없어요."
-            onMore={() =>
-              setView("youtube")
-            }
           />
-        </div>
-      )}
-
-      {view === "soop" && (
-        <VodGroup
-          title="SOOP VOD"
-          videos={soopVideos}
-          emptyText="SOOP VOD가 아직 없어요."
-        />
-      )}
-
-      {view === "youtube" && (
-        <VodGroup
-          title="YouTube"
-          videos={youtubeVideos}
-          emptyText="YouTube 영상이 아직 없어요."
-        />
-      )}
-    </section>
-  );
+        )}
+      </div>
+    </div>
+  </section>
+);
 }
 function VodGroup({
   title,
