@@ -156,6 +156,33 @@ export default function FanSite({
   data.background,
   ...(data.backgrounds ?? []),
 ].filter((value): value is string => Boolean(value));
+/* ========================================
+   배경 이미지 미리 다운로드
+======================================== */
+useEffect(() => {
+  const timer = window.setTimeout(() => {
+    const images = [
+      ...backgroundList,
+      data.mobileBackground,
+    ].filter(
+      (value): value is string =>
+        Boolean(value),
+    );
+
+    images.forEach((src) => {
+      const img = new window.Image();
+      img.src = src;
+    });
+  }, 500);
+
+  return () => {
+    window.clearTimeout(timer);
+  };
+}, [
+  data.background,
+  data.backgrounds,
+  data.mobileBackground,
+]);
 
 const [backgroundIndex, setBackgroundIndex] =
   useState(0);
@@ -212,11 +239,58 @@ function nextBackground() {
   changeBackground(backgroundIndex + 1);
 }
 
-  const router = useRouter();
+const router = useRouter();
 
-  const [adminLoginOpen, setAdminLoginOpen] = useState(false);
-  const [adminEmail, setAdminEmail] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
+
+/* ========================================
+   다른 팬페이지를 미리 불러오기
+======================================== */
+useEffect(() => {
+  router.prefetch("/");
+  router.prefetch("/profile");
+  router.prefetch("/vod");
+  router.prefetch("/calendar");
+  router.prefetch("/minigame");
+}, [router]);
+
+
+/* ========================================
+   배경 이미지 미리 다운로드
+======================================== */
+useEffect(() => {
+  const timer = window.setTimeout(() => {
+    const images = [
+      ...backgroundList,
+      data.mobileBackground,
+    ].filter(
+      (value): value is string =>
+        Boolean(value),
+    );
+
+    images.forEach((src) => {
+      const img = new window.Image();
+      img.src = src;
+    });
+  }, 500);
+
+  return () => {
+    window.clearTimeout(timer);
+  };
+}, [
+  data.background,
+  data.backgrounds,
+  data.mobileBackground,
+]);
+
+
+const [adminLoginOpen, setAdminLoginOpen] =
+  useState(false);
+
+const [adminEmail, setAdminEmail] =
+  useState("");
+
+const [adminPassword, setAdminPassword] =
+  useState("");
   const [adminLoginError, setAdminLoginError] = useState("");
   const [adminLoginBusy, setAdminLoginBusy] = useState(false);
 
@@ -310,6 +384,7 @@ function nextBackground() {
     <Link
       key={key}
       href={`/${key}`}
+      prefetch={true}
       aria-current={section === key ? "page" : undefined}
     >
       <Icon size={17} />
