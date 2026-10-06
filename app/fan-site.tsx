@@ -14,6 +14,7 @@ import {
   Heart,
   RotateCcw,
   Check,
+  LockKeyhole,
 } from "lucide-react";
 import type { Config } from "./site-model";
 const menus = [
@@ -108,7 +109,6 @@ export function ProfileCard({
     또오냥 팬카페
   </a>
 )}
-      </div>
       {data.namuwiki && (
   <a
     className="secondary-link"
@@ -120,6 +120,7 @@ export function ProfileCard({
     또오냥 위키
   </a>
 )}
+      </div>
     </article>
   );
 }
@@ -162,6 +163,11 @@ export default function FanSite({
               <span>{label}</span>
             </Link>
           ))}
+
+  <Link href="/admin/login">
+    <LockKeyhole size={17} />
+    <span>Admin</span>
+  </Link>
         </nav>
       </header>
       {section === "home" ? (
