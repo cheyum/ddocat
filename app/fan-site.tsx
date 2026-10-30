@@ -17,6 +17,7 @@ import {
   RotateCcw,
   Check,
   LockKeyhole,
+  MessageCircleQuestion,
   X,
 } from "lucide-react";
 import type { Config } from "./site-model";
@@ -25,6 +26,7 @@ const menus = [
   { key: "vod", label: "VOD", Icon: Play },
   { key: "calendar", label: "캘린더", Icon: CalendarDays },
   { key: "minigame", label: "미니게임", Icon: Gamepad2 },
+  { key: "qna", label: "Q&A", Icon: MessageCircleQuestion },
 ];
 type AutoVod = {
   id: string;
@@ -267,6 +269,7 @@ useEffect(() => {
   router.prefetch("/vod");
   router.prefetch("/calendar");
   router.prefetch("/minigame");
+  router.prefetch("/qna");
 }, [router]);
 
 
@@ -473,6 +476,9 @@ const [adminPassword, setAdminPassword] =
 )}
           {section === "calendar" && (
   <SoopCalendar />
+)}
+          {section === "qna" && (
+  <QnaPage />
 )}
           {section === "minigame" && <MemoryGame />}
         </main>
@@ -1353,6 +1359,329 @@ function MemoryGame() {
     [matched, setMatched] = useState<number[]>([]),
     [moves, setMoves] = useState(0),
     [started, setStarted] = useState(false);
+  type QnaPost = {
+  id: string;
+  author: string;
+  title: string;
+  content: string;
+  answer: string | null;
+  status:
+    | "waiting"
+    | "answered";
+  createdAt: string;
+  answeredAt: string | null;
+};
+
+function formatQnaDate(
+  value: string,
+) {
+  return new Intl.DateTimeFormat(
+    "ko-KR",
+    {
+      timeZone:
+        "Asia/Seoul",
+
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    },
+  ).format(
+    new Date(value),
+  );
+}
+
+function QnaPage() {
+  const [
+    posts,
+    setPosts,
+  ] =
+    useState<QnaPost[]>([]);
+
+  const [
+    selectedPost,
+    setSelectedPost,
+  ] =
+    useState<QnaPost | null>(
+      null,
+    );
+
+  const [
+    loading,
+    setLoading,
+  ] =
+    useState(true);
+
+  const [
+    error,
+    setError,
+  ] =
+    useState("");
+
+  useEffect(() => {
+    const controller =
+      new AbortController();
+
+    async function loadQna() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response =
+          await fetch(
+            "/api/qna",
+            {
+              signal:
+                controller.signal,
+
+              cache:
+                "no-store",
+            },
+          );
+
+        if (!response.ok) {
+          throw new Error(
+            "Q&A 조회 실패",
+          );
+        }
+
+        const result =
+          await response.json();
+
+        setPosts(
+          Array.isArray(
+            result.posts,
+          )
+            ? result.posts
+            : [],
+        );
+      } catch (error) {
+        if (
+          error instanceof
+            DOMException &&
+          error.name ===
+            "AbortError"
+        ) {
+          return;
+        }
+
+        setError(
+          "Q&A를 불러오지 못했어요.",
+        );
+      } finally {
+        if (
+          !controller
+            .signal
+            .aborted
+        ) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadQna();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+  if (selectedPost) {
+    return (
+      <section className="qna-section">
+        <div className="panel qna-shell">
+          <div className="qna-detail-top">
+            <button
+              type="button"
+              className="qna-back-button"
+              onClick={() =>
+                setSelectedPost(
+                  null,
+                )
+              }
+            >
+              ← 목록으로
+            </button>
+
+            <span
+              className={`qna-status ${
+                selectedPost.status ===
+                "answered"
+                  ? "answered"
+                  : "waiting"
+              }`}
+            >
+              {selectedPost.status ===
+              "answered"
+                ? "답변완료"
+                : "답변대기"}
+            </span>
+          </div>
+
+          <div className="qna-detail-heading">
+            <h2>
+              {
+                selectedPost.title
+              }
+            </h2>
+
+            <div className="qna-detail-meta">
+              <span>
+                {
+                  selectedPost.author
+                }
+              </span>
+
+              <span>
+                {formatQnaDate(
+                  selectedPost.createdAt,
+                )}
+              </span>
+            </div>
+          </div>
+
+          <div className="qna-question">
+            <span className="qna-label">
+              QUESTION
+            </span>
+
+            <p>
+              {
+                selectedPost.content
+              }
+            </p>
+          </div>
+
+          <div className="qna-answer">
+            <span className="qna-label">
+              ANSWER
+            </span>
+
+            {selectedPost.answer ? (
+              <p>
+                {
+                  selectedPost.answer
+                }
+              </p>
+            ) : (
+              <div className="qna-answer-empty">
+                아직 관리자의
+                답변이 등록되지
+                않았어요.
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="qna-section">
+      <div className="panel qna-shell">
+        <div className="qna-header">
+          <div>
+            <span className="eyebrow">
+              TAMAGO Q&A
+            </span>
+
+            <h2>
+              또오냥에게 질문하기
+            </h2>
+
+            <p>
+              SOOP 계정 인증 후
+              질문을 남길 수 있어요.
+              원하는 경우 익명으로
+              작성할 수도 있습니다.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className="qna-write-button"
+            disabled
+            title="SOOP 인증 기능 연결 후 활성화됩니다."
+          >
+            질문 작성
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="qna-empty">
+            Q&A를 불러오고
+            있어요.
+          </div>
+        ) : error ? (
+          <div className="qna-empty qna-error">
+            {error}
+          </div>
+        ) : posts.length ? (
+          <div className="qna-list">
+            {posts.map(
+              (post) => (
+                <button
+                  type="button"
+                  className="qna-list-item"
+                  key={post.id}
+                  onClick={() =>
+                    setSelectedPost(
+                      post,
+                    )
+                  }
+                >
+                  <span
+                    className={`qna-status ${
+                      post.status ===
+                      "answered"
+                        ? "answered"
+                        : "waiting"
+                    }`}
+                  >
+                    {post.status ===
+                    "answered"
+                      ? "답변완료"
+                      : "답변대기"}
+                  </span>
+
+                  <div className="qna-list-content">
+                    <strong>
+                      {
+                        post.title
+                      }
+                    </strong>
+
+                    <div className="qna-list-meta">
+                      <span>
+                        {
+                          post.author
+                        }
+                      </span>
+
+                      <span>
+                        {formatQnaDate(
+                          post.createdAt,
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  <span className="qna-list-arrow">
+                    ›
+                  </span>
+                </button>
+              ),
+            )}
+          </div>
+        ) : (
+          <div className="qna-empty">
+            아직 등록된 질문이
+            없어요.
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
   function start() {
     const array = [...symbols, ...symbols];
     for (let i = array.length - 1; i > 0; i--) {
