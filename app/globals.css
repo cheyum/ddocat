@@ -897,6 +897,12 @@ p {
         --mobile-anim-duration
       );
 
+      --current-delay:
+  var(
+    --mobile-anim-delay,
+    0s
+  );
+
     --current-distance:
       var(
         --mobile-anim-distance
@@ -939,6 +945,7 @@ p {
       ddocatBgFloat
       var(--current-duration)
       ease-in-out
+      var(--current-delay)
       infinite;
   }
 
@@ -951,6 +958,7 @@ p {
       ddocatBgPan
       var(--current-duration)
       ease-in-out
+      var(--current-delay)
       infinite;
   }
 
@@ -963,6 +971,7 @@ p {
       ddocatBgZoom
       var(--current-duration)
       ease-in-out
+      var(--current-delay)
       infinite;
   }
 
@@ -975,6 +984,7 @@ p {
       ddocatBgGlow
       var(--current-duration)
       ease-in-out
+      var(--current-delay)
       infinite;
   }
 
@@ -4276,6 +4286,12 @@ p {
   --current-duration:
     var(--pc-anim-duration);
 
+  --current-delay:
+    var(
+      --pc-anim-delay,
+      0s
+    );
+
   --current-distance:
     var(--pc-anim-distance);
 
@@ -4303,10 +4319,11 @@ p {
 ]
 .backdrop-image {
   animation:
-    ddocatBgFloat
-    var(--current-duration)
-    ease-in-out
-    infinite;
+  ddocatBgFloat
+  var(--current-duration)
+  ease-in-out
+  var(--current-delay)
+  infinite;
 }
 
 
@@ -4317,10 +4334,11 @@ p {
 ]
 .backdrop-image {
   animation:
-    ddocatBgPan
-    var(--current-duration)
-    ease-in-out
-    infinite;
+  ddocatBgZoom
+  var(--current-duration)
+  ease-in-out
+  var(--current-delay)
+  infinite;
 }
 
 
@@ -4331,10 +4349,11 @@ p {
 ]
 .backdrop-image {
   animation:
-    ddocatBgZoom
-    var(--current-duration)
-    ease-in-out
-    infinite;
+  ddocatBgGlow
+  var(--current-duration)
+  ease-in-out
+  var(--current-delay)
+  infinite;
 }
 
 

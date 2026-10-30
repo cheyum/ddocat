@@ -1,5 +1,10 @@
 "use client";
-import { useState, useEffect, useLayoutEffect } from "react";
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import Link from "next/link";
 import LivePlayer from "./live-player";
 import { useRouter } from "next/navigation";
@@ -109,6 +114,54 @@ function getAnimationValues(
   };
 }  
 
+function getBackgroundAnimationDelay(
+  imageUrl: string,
+) {
+  if (
+    typeof window === "undefined" ||
+    !imageUrl
+  ) {
+    return 0;
+  }
+
+  const storageKey =
+    `DDOCAT-bg-animation-start:${imageUrl}`;
+
+  const now =
+    Date.now();
+
+  const saved =
+    window.sessionStorage.getItem(
+      storageKey,
+    );
+
+  let startedAt =
+    saved
+      ? Number(saved)
+      : 0;
+
+  if (
+    !Number.isFinite(
+      startedAt,
+    ) ||
+    startedAt <= 0 ||
+    startedAt > now
+  ) {
+    startedAt =
+      now;
+
+    window.sessionStorage.setItem(
+      storageKey,
+      String(startedAt),
+    );
+  }
+
+  return -(
+    (now - startedAt) /
+    1000
+  );
+}
+
 export function Backdrop({
   data,
   background,
@@ -116,6 +169,11 @@ export function Backdrop({
   data: Config;
   background?: string;
 }) {
+const backdropImageRef =
+  useRef<HTMLDivElement>(
+    null,
+  );
+
   const selectedBackground =
     background ||
     data.background;
@@ -154,6 +212,38 @@ export function Backdrop({
       baseScale,
       true,
     );
+
+    useLayoutEffect(() => {
+  const element =
+    backdropImageRef.current;
+
+  if (!element) {
+    return;
+  }
+
+  const pcDelay =
+    getBackgroundAnimationDelay(
+      selectedBackground,
+    );
+
+  const mobileDelay =
+    getBackgroundAnimationDelay(
+      mobileBackground,
+    );
+
+  element.style.setProperty(
+    "--pc-anim-delay",
+    `${pcDelay}s`,
+  );
+
+  element.style.setProperty(
+    "--mobile-anim-delay",
+    `${mobileDelay}s`,
+  );
+}, [
+  selectedBackground,
+  mobileBackground,
+]);
 
   return (
     <div
@@ -237,7 +327,10 @@ export function Backdrop({
         } as React.CSSProperties
       }
     >
-      <div className="backdrop-image" />
+      <div
+  ref={backdropImageRef}
+  className="backdrop-image"
+/>
 
       <div className="backdrop-shade" />
     </div>
