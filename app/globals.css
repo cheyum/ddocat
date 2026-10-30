@@ -4633,3 +4633,10 @@ p {
   }
 
 }
+.image-field-stack {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

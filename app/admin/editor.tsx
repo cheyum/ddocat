@@ -709,10 +709,41 @@ function BackgroundAnimationControls({
                     사용해요.
                   </p>
                   <div className="image-fields">
-                    <ImageField label="PC 배경" field="background" />
-                    <ImageField label="모바일 배경" field="mobileBackground" />
-                    <ImageField label="상단 로고 이미지" field="brandlogo" />
-                  </div>
+
+  <div className="image-field-stack">
+    <ImageField
+      label="PC 배경"
+      field="background"
+    />
+
+    {data.background && (
+      <BackgroundAnimationControls
+        imageUrl={data.background}
+      />
+    )}
+  </div>
+
+
+  <div className="image-field-stack">
+    <ImageField
+      label="모바일 배경"
+      field="mobileBackground"
+    />
+
+    {data.mobileBackground && (
+      <BackgroundAnimationControls
+        imageUrl={data.mobileBackground}
+      />
+    )}
+  </div>
+
+
+  <ImageField
+    label="상단 로고 이미지"
+    field="brandlogo"
+  />
+
+</div>
                   <div className="form-grid">
                     <label>
                       PC 이미지 위치
