@@ -453,7 +453,15 @@ const [adminPassword, setAdminPassword] =
           {section === "qna" && (
   <QnaPage />
 )}
-          {section === "minigame" && <MemoryGame />}
+          {section === "minigame" && (
+  <div className="minigame-page">
+
+    <MemoryGame />
+
+    <ExternalGameList />
+
+  </div>
+)}
         </main>
       )}
       <footer className="site-footer">
@@ -1593,6 +1601,44 @@ function QnaPage() {
   );
 }
 
+type ExternalGame = {
+  id: string;
+  title: string;
+  url: string;
+  thumbnail: string;
+  description?: string;
+};
+
+const externalGames: ExternalGame[] = [
+  {
+    id: "game-1",
+    title: "사과게임",
+    url: "https://www.gamesaien.com/game/fruit_box_a/",
+    thumbnail: "/images/사과게임.png",
+  },
+
+  {
+    id: "game-2",
+    title: "사과게임(멀티)",
+    url: "https://apple.oshizi.com/ko/",
+    thumbnail: "/images/사과게임멀티.png",
+  },
+  
+  {
+    id: "game-3",
+    title: "컬러타일",
+    url: "https://www.gamesaien.com/game/color_tiles/",
+    thumbnail: "/images/컬러타일.png",
+  },
+  
+  {
+    id: "game-4",
+    title: "컬러타일(멀티)",
+    url: "https://color-tiles.oshizi.com/ko/",
+    thumbnail: "/images/컬러타일멀티.png",
+  },
+];
+
 const symbols = [
   "🐱",
   "🐾",
@@ -1761,6 +1807,120 @@ function MemoryGame() {
       );
     }
   }
+
+function ExternalGameList() {
+  if (!externalGames.length) {
+    return null;
+  }
+
+  return (
+    <section className="external-games-section">
+
+      <div className="external-games-heading">
+
+        <div>
+          <span className="eyebrow">
+            EXTERNAL GAMES
+          </span>
+
+          <h2>
+            다른 게임도 플레이해보세요
+          </h2>
+
+          <p>
+            게임을 선택하면 새 탭에서 열립니다.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div className="external-games-grid">
+
+        {externalGames.map(
+          (game) => (
+
+            <a
+              key={game.id}
+              className="external-game-card panel"
+              href={game.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+
+              <div className="external-game-thumbnail">
+
+                {game.thumbnail ? (
+
+                  <img
+                    src={game.thumbnail}
+                    alt={`${game.title} 썸네일`}
+                    loading="lazy"
+                  />
+
+                ) : (
+
+                  <div className="external-game-thumbnail-empty">
+
+                    <Gamepad2
+                      size={38}
+                      strokeWidth={1.2}
+                    />
+
+                  </div>
+
+                )}
+
+                <span className="external-game-badge">
+                  GAME
+                </span>
+
+              </div>
+
+
+              <div className="external-game-info">
+
+                <div className="external-game-title">
+
+                  <h3>
+                    {game.title}
+                  </h3>
+
+                  <ExternalLink
+                    size={15}
+                  />
+
+                </div>
+
+
+                {game.description && (
+
+                  <p>
+                    {game.description}
+                  </p>
+
+                )}
+
+
+                <span className="external-game-play">
+                  플레이하기
+                  <ExternalLink
+                    size={12}
+                  />
+                </span>
+
+              </div>
+
+            </a>
+
+          ),
+        )}
+
+      </div>
+
+    </section>
+  );
+}
 
   useEffect(() => {
     loadRankings();

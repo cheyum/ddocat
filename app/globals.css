@@ -3620,3 +3620,302 @@ p {
   }
 
 }
+/* ==========================================
+   MINIGAME PAGE
+========================================== */
+
+.minigame-page {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 24px;
+}
+
+
+/* ==========================================
+   EXTERNAL GAMES
+========================================== */
+
+.external-games-section {
+  width: 100%;
+
+  padding: 22px 24px 26px;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(8, 23, 39, 0.84),
+      rgba(20, 31, 40, 0.74)
+    );
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.13);
+
+  backdrop-filter:
+    blur(18px);
+
+  -webkit-backdrop-filter:
+    blur(18px);
+}
+
+
+.external-games-heading {
+  margin-bottom: 18px;
+}
+
+
+.external-games-heading h2 {
+  margin: 5px 0 5px;
+
+  color: #fff;
+
+  font-size: 20px;
+
+  font-weight: 850;
+}
+
+
+.external-games-heading p {
+  margin: 0;
+
+  color:
+    rgba(255, 255, 255, 0.48);
+
+  font-size: 10px;
+}
+
+
+/* 카드 배열 */
+
+.external-games-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+}
+
+
+/* 카드 */
+
+.external-game-card {
+  min-width: 0;
+
+  overflow: hidden;
+
+  border-radius: 17px;
+
+  background:
+    rgba(8, 22, 31, 0.8);
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.1);
+
+  color: inherit;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.external-game-card:hover {
+  transform:
+    translateY(-3px);
+
+  border-color:
+    rgba(167, 195, 255, 0.3);
+
+  box-shadow:
+    0 15px 32px
+    rgba(0, 0, 0, 0.2);
+}
+
+
+/* 썸네일 */
+
+.external-game-thumbnail {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  background:
+    rgba(7, 17, 27, 0.8);
+}
+
+
+.external-game-thumbnail img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.3s ease;
+}
+
+
+.external-game-card:hover
+.external-game-thumbnail img {
+  transform:
+    scale(1.04);
+}
+
+
+.external-game-thumbnail-empty {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color:
+    rgba(255, 255, 255, 0.32);
+}
+
+
+/* GAME 표시 */
+
+.external-game-badge {
+  position: absolute;
+
+  top: 10px;
+  left: 10px;
+
+  padding: 5px 8px;
+
+  border-radius: 7px;
+
+  background:
+    rgba(5, 15, 24, 0.82);
+
+  color: #fff;
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+  backdrop-filter:
+    blur(8px);
+}
+
+
+/* 내용 */
+
+.external-game-info {
+  padding: 14px 15px 16px;
+}
+
+
+.external-game-title {
+  display: flex;
+
+  align-items: center;
+
+  justify-content:
+    space-between;
+
+  gap: 10px;
+}
+
+
+.external-game-title h3 {
+  min-width: 0;
+
+  margin: 0;
+
+  overflow: hidden;
+
+  color: #fff;
+
+  font-size: 14px;
+
+  font-weight: 850;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+.external-game-title svg {
+  flex-shrink: 0;
+
+  color:
+    rgba(255, 255, 255, 0.45);
+}
+
+
+.external-game-info p {
+  min-height: 34px;
+
+  margin: 8px 0 12px;
+
+  color:
+    rgba(255, 255, 255, 0.5);
+
+  font-size: 10px;
+
+  line-height: 1.6;
+}
+
+
+.external-game-play {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  color: #b9ccff;
+
+  font-size: 9px;
+
+  font-weight: 850;
+}
+
+
+/* 태블릿 */
+
+@media (max-width: 950px) {
+
+  .external-games-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* 모바일 */
+
+@media (max-width: 600px) {
+
+  .external-games-section {
+    padding: 18px 15px 22px;
+  }
+
+  .external-games-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+}
