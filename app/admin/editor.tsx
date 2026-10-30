@@ -11,6 +11,7 @@ import {
   Plus,
   House,
   Check,
+  Bell,
 } from "lucide-react";
 import { createClient } from "../../lib/supabase/client";
 import { IMAGE_BUCKET } from "../../lib/supabase/config";
@@ -407,6 +408,7 @@ export default function AdminEditor({
             { key: "profile", label: "프로필", Icon: UserRound },
             { key: "vod", label: "VOD", Icon: Play },
             { key: "calendar", label: "캘린더", Icon: CalendarDays },
+            { key: "notice", label: "업데이트 알림", Icon: Bell },
           ].map(({ key, label, Icon }) => (
             <button
               key={key}
@@ -431,6 +433,7 @@ export default function AdminEditor({
                       profile: "프로필",
                       vod: "VOD",
                       calendar: "캘린더",
+                      notice: "업데이트 알림",
                     } as Record<string, string>
                   )[tab]
                 }{" "}
@@ -896,6 +899,343 @@ export default function AdminEditor({
                 ))}
               </section>
             )}
+            {tab === "notice" && (
+  <section className="edit-panel">
+
+    <div className="edit-panel-heading">
+
+      <div>
+        <h2>
+          업데이트 알림
+        </h2>
+
+        <p>
+          메인 페이지에 표시되는
+          업데이트 팝업을 관리합니다.
+          방문자에게 한국 시간 기준
+          하루 한 번 표시됩니다.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        className="secondary-button"
+        onClick={() =>
+          update(
+            "updateNotice",
+            {
+              ...data.updateNotice,
+
+              items: [
+                ...data
+                  .updateNotice
+                  .items,
+
+                {
+                  id:
+                    crypto.randomUUID(),
+
+                  title:
+                    "새 업데이트",
+
+                  content:
+                    "업데이트 내용을 입력해 주세요.",
+                },
+              ],
+            },
+          )
+        }
+        disabled={
+          data.updateNotice
+            .items.length >=
+          20
+        }
+      >
+        <Plus size={16} />
+
+        항목 추가
+      </button>
+
+    </div>
+
+
+    <div className="form-grid">
+
+      <label>
+        팝업 사용 여부
+
+        <select
+          value={
+            data.updateNotice
+              .enabled
+              ? "on"
+              : "off"
+          }
+          onChange={(e) =>
+            update(
+              "updateNotice",
+              {
+                ...data.updateNotice,
+
+                enabled:
+                  e.target
+                    .value ===
+                  "on",
+              },
+            )
+          }
+        >
+          <option value="on">
+            사용
+          </option>
+
+          <option value="off">
+            사용 안 함
+          </option>
+        </select>
+      </label>
+
+
+      <label>
+        팝업 제목
+
+        <input
+          maxLength={100}
+          value={
+            data.updateNotice
+              .title
+          }
+          onChange={(e) =>
+            update(
+              "updateNotice",
+              {
+                ...data.updateNotice,
+
+                title:
+                  e.target.value,
+              },
+            )
+          }
+        />
+      </label>
+
+    </div>
+
+
+    <div
+      className="edit-panel-heading"
+      style={{
+        marginTop: 24,
+      }}
+    >
+      <div>
+        <h2>
+          재노출 설정
+        </h2>
+
+        <p>
+          공지 내용을 수정해도
+          오늘 이미 팝업을 본
+          방문자에게는 다시
+          나타나지 않습니다.
+          아래 버튼을 누르고 저장하면
+          오늘 본 사용자에게도
+          새로운 공지로 다시
+          표시됩니다.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        className="secondary-button"
+        onClick={() =>
+          update(
+            "updateNotice",
+            {
+              ...data.updateNotice,
+
+              version:
+                data.updateNotice
+                  .version +
+                1,
+            },
+          )
+        }
+      >
+        <Bell size={16} />
+
+        오늘 다시 표시
+      </button>
+    </div>
+
+
+    <p>
+      현재 공지 버전:{" "}
+      <strong>
+        {
+          data.updateNotice
+            .version
+        }
+      </strong>
+    </p>
+
+
+    {!data.updateNotice
+      .items.length && (
+      <p>
+        등록된 업데이트
+        내용이 없습니다.
+      </p>
+    )}
+
+
+    {data.updateNotice
+      .items.map(
+        (
+          item,
+          index,
+        ) => (
+
+          <div
+            className="edit-item"
+            key={item.id}
+          >
+
+            <div className="edit-item-heading">
+
+              <strong>
+                업데이트{" "}
+                {index + 1}
+              </strong>
+
+              <button
+                type="button"
+                aria-label="업데이트 항목 삭제"
+                onClick={() =>
+                  update(
+                    "updateNotice",
+                    {
+                      ...data.updateNotice,
+
+                      items:
+                        data.updateNotice
+                          .items
+                          .filter(
+                            (
+                              current,
+                            ) =>
+                              current.id !==
+                              item.id,
+                          ),
+                    },
+                  )
+                }
+              >
+                <Trash2
+                  size={18}
+                />
+              </button>
+
+            </div>
+
+
+            <div className="form-grid">
+
+              <label className="wide">
+
+                업데이트 제목
+
+                <input
+                  maxLength={100}
+                  value={
+                    item.title
+                  }
+                  onChange={(e) =>
+                    update(
+                      "updateNotice",
+                      {
+                        ...data.updateNotice,
+
+                        items:
+                          data.updateNotice
+                            .items
+                            .map(
+                              (
+                                current,
+                              ) =>
+                                current.id ===
+                                item.id
+                                  ? {
+                                      ...current,
+
+                                      title:
+                                        e
+                                          .target
+                                          .value,
+                                    }
+                                  : current,
+                            ),
+                      },
+                    )
+                  }
+                />
+
+              </label>
+
+
+              <label className="wide">
+
+                업데이트 내용
+
+                <textarea
+                  rows={4}
+                  maxLength={
+                    1000
+                  }
+                  value={
+                    item.content
+                  }
+                  onChange={(e) =>
+                    update(
+                      "updateNotice",
+                      {
+                        ...data.updateNotice,
+
+                        items:
+                          data.updateNotice
+                            .items
+                            .map(
+                              (
+                                current,
+                              ) =>
+                                current.id ===
+                                item.id
+                                  ? {
+                                      ...current,
+
+                                      content:
+                                        e
+                                          .target
+                                          .value,
+                                    }
+                                  : current,
+                            ),
+                      },
+                    )
+                  }
+                />
+
+              </label>
+
+            </div>
+
+          </div>
+
+        ),
+      )}
+
+  </section>
+)}
           </fieldset>
         </main>
       </div>

@@ -399,81 +399,142 @@ export default function FanSite({
    * 메인 화면 하루 1회 표시
    */
   useEffect(() => {
-    if (
-      section !== "home"
-    ) {
-      return;
+  if (
+    section !== "home"
+  ) {
+    return;
+  }
+
+  if (
+    !data.updateNotice
+      .enabled
+  ) {
+    return;
+  }
+
+  if (
+    !data.updateNotice
+      .items.length
+  ) {
+    return;
+  }
+
+  const dateParts =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        timeZone:
+          "Asia/Seoul",
+
+        year:
+          "numeric",
+
+        month:
+          "2-digit",
+
+        day:
+          "2-digit",
+      },
+    ).formatToParts(
+      new Date(),
+    );
+
+  const year =
+    dateParts.find(
+      (part) =>
+        part.type ===
+        "year",
+    )?.value ?? "";
+
+  const month =
+    dateParts.find(
+      (part) =>
+        part.type ===
+        "month",
+    )?.value ?? "";
+
+  const day =
+    dateParts.find(
+      (part) =>
+        part.type ===
+        "day",
+    )?.value ?? "";
+
+  const today =
+    `${year}-${month}-${day}`;
+
+  const storageKey =
+    "DDOCAT-update-popup-state";
+
+  let lastDate = "";
+  let lastVersion = 0;
+
+  try {
+    const saved =
+      window.localStorage
+        .getItem(
+          storageKey,
+        );
+
+    if (saved) {
+      const parsed =
+        JSON.parse(
+          saved,
+        ) as {
+          date?: string;
+          version?: number;
+        };
+
+      lastDate =
+        parsed.date ??
+        "";
+
+      lastVersion =
+        Number(
+          parsed.version ??
+            0,
+        );
     }
+  } catch {
+    /*
+     * 저장값이 깨져 있어도
+     * 팝업 표시에는 문제 없음
+     */
+  }
 
-    const dateParts =
-      new Intl.DateTimeFormat(
-        "en-US",
-        {
-          timeZone:
-            "Asia/Seoul",
+  const currentVersion =
+    data.updateNotice
+      .version;
 
-          year:
-            "numeric",
+  if (
+    lastDate !==
+      today ||
+    lastVersion !==
+      currentVersion
+  ) {
+    setUpdatePopupOpen(
+      true,
+    );
 
-          month:
-            "2-digit",
-
-          day:
-            "2-digit",
-        },
-      ).formatToParts(
-        new Date(),
-      );
-
-    const year =
-      dateParts.find(
-        (part) =>
-          part.type ===
-          "year",
-      )?.value ?? "";
-
-    const month =
-      dateParts.find(
-        (part) =>
-          part.type ===
-          "month",
-      )?.value ?? "";
-
-    const day =
-      dateParts.find(
-        (part) =>
-          part.type ===
-          "day",
-      )?.value ?? "";
-
-    const today =
-      `${year}-${month}-${day}`;
-
-    const storageKey =
-      "DDOCAT-update-popup-date";
-
-    const lastShownDate =
-      window.localStorage.getItem(
+    window.localStorage
+      .setItem(
         storageKey,
-      );
 
-    if (
-      today &&
-      lastShownDate !==
-        today
-    ) {
-      setUpdatePopupOpen(
-        true,
-      );
+        JSON.stringify(
+          {
+            date:
+              today,
 
-      window.localStorage.setItem(
-        storageKey,
-        today,
+            version:
+              currentVersion,
+          },
+        ),
       );
-    }
-  }, [
-    section,
-  ]);
+  }
+}, [
+  section,
+  data.updateNotice,
+]);
 
   /* ========================================
      관리자 로그인
@@ -884,40 +945,42 @@ export default function FanSite({
             </span>
 
             <h2
-              id="update-popup-title"
-            >
-              업데이트 안내 ✦
-            </h2>
+  id="update-popup-title"
+>
+  {
+    data.updateNotice
+      .title
+  }
+</h2>
 
-            <div className="update-popup-content">
-              <div className="update-popup-item">
-                <strong>
-                  미니게임 랭킹
-                  추가
-                </strong>
 
-                <p>
-                  냥냥 짝 맞추기에
-                  TOP 3 랭킹
-                  시스템이
-                  추가되었습니다.
-                </p>
-              </div>
+<div className="update-popup-content">
 
-              <div className="update-popup-item">
-                <strong>
-                  외부 게임 추가
-                </strong>
+  {data.updateNotice
+    .items.map(
+      (
+        item,
+      ) => (
 
-                <p>
-                  사과게임과
-                  컬러타일 등 외부
-                  게임을 새 탭에서
-                  바로 즐길 수
-                  있습니다.
-                </p>
-              </div>
-            </div>
+        <div
+          className="update-popup-item"
+          key={item.id}
+        >
+
+          <strong>
+            {item.title}
+          </strong>
+
+          <p>
+            {item.content}
+          </p>
+
+        </div>
+
+      ),
+    )}
+
+</div>
 
             <button
               type="button"
