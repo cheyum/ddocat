@@ -1593,92 +1593,1022 @@ function QnaPage() {
   );
 }
 
-const symbols = ["🐱", "🐾", "🎀", "🌙", "💚", "⭐"];
+const symbols = [
+  "🐱",
+  "🐾",
+  "🎀",
+  "🌙",
+  "💚",
+  "⭐",
+];
+
+type GameRanking = {
+  id: string;
+  nickname: string;
+  moves: number;
+  timeMs: number;
+  createdAt: string;
+};
+
+function formatGameTime(
+  timeMs: number,
+) {
+  return `${(
+    timeMs / 1000
+  ).toFixed(1)}초`;
+}
+
 function MemoryGame() {
-  const [cards, setCards] = useState<string[]>([]),
-    [open, setOpen] = useState<number[]>([]),
-    [matched, setMatched] = useState<number[]>([]),
-    [moves, setMoves] = useState(0),
-    [started, setStarted] = useState(false);
-  function start() {
-    const array = [...symbols, ...symbols];
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+  const [
+    cards,
+    setCards,
+  ] = useState<string[]>([]);
+
+  const [
+    open,
+    setOpen,
+  ] = useState<number[]>([]);
+
+  const [
+    matched,
+    setMatched,
+  ] = useState<number[]>([]);
+
+  const [
+    moves,
+    setMoves,
+  ] = useState(0);
+
+  const [
+    started,
+    setStarted,
+  ] = useState(false);
+
+  const [
+    completed,
+    setCompleted,
+  ] = useState(false);
+
+  const [
+    starting,
+    setStarting,
+  ] = useState(false);
+
+  const [
+    finishing,
+    setFinishing,
+  ] = useState(false);
+
+  const [
+    attemptId,
+    setAttemptId,
+  ] = useState("");
+
+  const [
+    startedAt,
+    setStartedAt,
+  ] = useState<number | null>(
+    null,
+  );
+
+  const [
+    elapsedMs,
+    setElapsedMs,
+  ] = useState(0);
+
+  const [
+    rankings,
+    setRankings,
+  ] =
+    useState<GameRanking[]>([]);
+
+  const [
+    rankingLoading,
+    setRankingLoading,
+  ] = useState(true);
+
+  const [
+    rankingError,
+    setRankingError,
+  ] = useState("");
+
+  const [
+    qualified,
+    setQualified,
+  ] = useState(false);
+
+  const [
+    registered,
+    setRegistered,
+  ] = useState(false);
+
+  const [
+    nickname,
+    setNickname,
+  ] = useState("");
+
+  const [
+    rankBusy,
+    setRankBusy,
+  ] = useState(false);
+
+  const [
+    rankMessage,
+    setRankMessage,
+  ] = useState("");
+
+  async function loadRankings() {
+    try {
+      setRankingLoading(
+        true,
+      );
+
+      setRankingError("");
+
+      const response =
+        await fetch(
+          "/api/minigame/ranking",
+          {
+            cache:
+              "no-store",
+          },
+        );
+
+      const result =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ||
+            "랭킹 조회 실패",
+        );
+      }
+
+      setRankings(
+        Array.isArray(
+          result.rankings,
+        )
+          ? result.rankings
+          : [],
+      );
+    } catch {
+      setRankingError(
+        "랭킹을 불러오지 못했어요.",
+      );
+    } finally {
+      setRankingLoading(
+        false,
+      );
     }
-    setCards(array);
-    setOpen([]);
-    setMatched([]);
-    setMoves(0);
-    setStarted(true);
   }
+
   useEffect(() => {
-    if (open.length !== 2) return;
-    const [a, b] = open;
-    const timer = setTimeout(() => {
-      if (cards[a] === cards[b]) setMatched((m) => [...m, a, b]);
+    loadRankings();
+  }, []);
+
+  /*
+   * 화면용 타이머
+   */
+  useEffect(() => {
+    if (
+      !started ||
+      completed ||
+      startedAt === null
+    ) {
+      return;
+    }
+
+    const timer =
+      window.setInterval(
+        () => {
+          setElapsedMs(
+            Date.now() -
+              startedAt,
+          );
+        },
+        100,
+      );
+
+    return () => {
+      window.clearInterval(
+        timer,
+      );
+    };
+  }, [
+    started,
+    completed,
+    startedAt,
+  ]);
+
+  /*
+   * 게임 시작
+   */
+  async function start() {
+    if (starting) {
+      return;
+    }
+
+    setStarting(true);
+
+    setRankingError("");
+    setRankMessage("");
+
+    try {
+      const response =
+        await fetch(
+          "/api/minigame/ranking",
+          {
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                action:
+                  "start",
+              }),
+          },
+        );
+
+      const result =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !result.attemptId
+      ) {
+        throw new Error(
+          result.error ||
+            "게임 시작 실패",
+        );
+      }
+
+      const array = [
+        ...symbols,
+        ...symbols,
+      ];
+
+      for (
+        let i =
+          array.length - 1;
+        i > 0;
+        i--
+      ) {
+        const j =
+          Math.floor(
+            Math.random() *
+              (i + 1),
+          );
+
+        [
+          array[i],
+          array[j],
+        ] = [
+          array[j],
+          array[i],
+        ];
+      }
+
+      setAttemptId(
+        result.attemptId,
+      );
+
+      setCards(array);
+
       setOpen([]);
-    }, 700);
-    return () => clearTimeout(timer);
-  }, [open, cards]);
-  function flip(i: number) {
-    if (open.length === 2 || open.includes(i) || matched.includes(i)) return;
-    setOpen([...open, i]);
-    if (open.length === 1) setMoves((m) => m + 1);
+      setMatched([]);
+
+      setMoves(0);
+
+      setCompleted(false);
+
+      setQualified(false);
+      setRegistered(false);
+
+      setNickname("");
+
+      setRankMessage("");
+
+      setElapsedMs(0);
+
+      setStartedAt(
+        Date.now(),
+      );
+
+      setStarted(true);
+    } catch {
+      setRankingError(
+        "게임 기록 서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.",
+      );
+    } finally {
+      setStarting(false);
+    }
   }
+
+  /*
+   * 카드 두 장 확인
+   */
+  useEffect(() => {
+    if (
+      open.length !== 2 ||
+      completed
+    ) {
+      return;
+    }
+
+    const [
+      first,
+      second,
+    ] = open;
+
+    const timer =
+      window.setTimeout(
+        () => {
+          if (
+            cards[first] ===
+            cards[second]
+          ) {
+            setMatched(
+              (current) => [
+                ...current,
+                first,
+                second,
+              ],
+            );
+          }
+
+          setOpen([]);
+        },
+        700,
+      );
+
+    return () => {
+      window.clearTimeout(
+        timer,
+      );
+    };
+  }, [
+    open,
+    cards,
+    completed,
+  ]);
+
+  /*
+   * 게임 완료
+   */
+  useEffect(() => {
+    if (
+      !started ||
+      completed ||
+      matched.length !== 12
+    ) {
+      return;
+    }
+
+    setCompleted(true);
+
+    if (
+      startedAt !== null
+    ) {
+      setElapsedMs(
+        Date.now() -
+          startedAt,
+      );
+    }
+
+    async function finishGame() {
+      if (!attemptId) {
+        return;
+      }
+
+      setFinishing(true);
+
+      setRankMessage("");
+
+      try {
+        const response =
+          await fetch(
+            "/api/minigame/ranking",
+            {
+              method:
+                "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+
+              body:
+                JSON.stringify({
+                  action:
+                    "finish",
+
+                  attemptId,
+
+                  moves,
+                }),
+            },
+          );
+
+        const result =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.error ||
+              "기록 확인 실패",
+          );
+        }
+
+        if (
+          Number.isFinite(
+            result.timeMs,
+          )
+        ) {
+          setElapsedMs(
+            result.timeMs,
+          );
+        }
+
+        setRankings(
+          Array.isArray(
+            result.rankings,
+          )
+            ? result.rankings
+            : [],
+        );
+
+        const isQualified =
+          Boolean(
+            result.qualified,
+          );
+
+        setQualified(
+          isQualified,
+        );
+
+        if (
+          isQualified
+        ) {
+          setRankMessage(
+            "TOP 3 기록입니다! 원하는 닉네임으로 기록을 남겨주세요.",
+          );
+        } else {
+          setRankMessage(
+            "게임을 완료했지만 현재 TOP 3에는 들지 못했어요.",
+          );
+        }
+      } catch {
+        setQualified(false);
+
+        setRankMessage(
+          "게임은 완료했지만 랭킹 기록을 확인하지 못했어요.",
+        );
+      } finally {
+        setFinishing(false);
+      }
+    }
+
+    finishGame();
+  }, [
+    started,
+    completed,
+    matched.length,
+    attemptId,
+    moves,
+    startedAt,
+  ]);
+
+  function flip(
+    index: number,
+  ) {
+    if (
+      completed ||
+      open.length === 2 ||
+      open.includes(index) ||
+      matched.includes(index)
+    ) {
+      return;
+    }
+
+    setOpen([
+      ...open,
+      index,
+    ]);
+
+    if (
+      open.length === 1
+    ) {
+      setMoves(
+        (current) =>
+          current + 1,
+      );
+    }
+  }
+
+  async function submitRanking(
+    event:
+      React.FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+
+    const clean =
+      nickname.trim();
+
+    if (
+      !qualified ||
+      !attemptId ||
+      !clean ||
+      rankBusy
+    ) {
+      return;
+    }
+
+    setRankBusy(true);
+
+    setRankMessage("");
+
+    try {
+      const response =
+        await fetch(
+          "/api/minigame/ranking",
+          {
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                action:
+                  "submit",
+
+                attemptId,
+
+                nickname:
+                  clean,
+              }),
+          },
+        );
+
+      const result =
+        await response.json();
+
+      if (!response.ok) {
+        if (
+          Array.isArray(
+            result.rankings,
+          )
+        ) {
+          setRankings(
+            result.rankings,
+          );
+        }
+
+        setQualified(false);
+
+        setRankMessage(
+          result.error ||
+            "랭킹을 등록하지 못했어요.",
+        );
+
+        return;
+      }
+
+      setRankings(
+        Array.isArray(
+          result.rankings,
+        )
+          ? result.rankings
+          : [],
+      );
+
+      setRegistered(true);
+
+      setQualified(false);
+
+      setRankMessage(
+        "TOP 3 랭킹에 등록됐어요!",
+      );
+    } catch {
+      setRankMessage(
+        "랭킹 등록 중 문제가 발생했어요.",
+      );
+    } finally {
+      setRankBusy(false);
+    }
+  }
+
   return (
-    <section className="panel game">
-      <div className="game-heading">
-        <div>
-          <span className="eyebrow">MEMORY GAME</span>
-          <h2>냥냥 짝 맞추기</h2>
-          <p>같은 그림 두 장을 찾아보세요.</p>
+    <section className="memory-game-page">
+
+      <aside className="panel ranking-board">
+
+        <div className="ranking-board-heading">
+
+          <span className="eyebrow">
+            TOP RANKING
+          </span>
+
+          <h2>
+            🏆 TOP 3
+          </h2>
+
+          <p>
+            시도 횟수가 적을수록
+            높은 순위이며,
+            동률이면 완료 시간이
+            빠른 기록이 우선이에요.
+          </p>
+
         </div>
-        <span className="moves">
-          {moves}번 시도 · {matched.length / 2}/6쌍
-        </span>
-      </div>
-      {started ? (
-        <>
-          <div className="memory-grid">
-            {cards.map((c, i) => (
-              <button
-                key={i}
-                onClick={() => flip(i)}
-                disabled={matched.includes(i) || open.length === 2}
-                className={`memory-card ${open.includes(i) || matched.includes(i) ? "flipped" : ""}`}
-                aria-label={
-                  open.includes(i) || matched.includes(i)
-                    ? c
-                    : `${i + 1}번 카드 뒤집기`
-                }
-              >
-                {open.includes(i) || matched.includes(i) ? (
-                  c
-                ) : (
-                  <Cat size={28} strokeWidth={1.2} />
-                )}
-              </button>
-            ))}
+
+        {rankingLoading ? (
+
+          <div className="ranking-empty">
+            랭킹을 불러오고
+            있어요.
           </div>
-          {matched.length === 12 && (
-            <p className="game-win">
-              <Check size={20} /> 모두 찾았어요! {moves}번 만에 성공.
+
+        ) : rankingError ? (
+
+          <div className="ranking-empty ranking-error">
+            {rankingError}
+          </div>
+
+        ) : rankings.length ? (
+
+          <div className="ranking-list">
+
+            {rankings.map(
+              (
+                entry,
+                index,
+              ) => (
+
+                <div
+                  className={`ranking-row ranking-${index + 1}`}
+                  key={
+                    entry.id
+                  }
+                >
+
+                  <span className="ranking-place">
+                    {index + 1}
+                  </span>
+
+                  <div className="ranking-player">
+
+                    <strong>
+                      {
+                        entry.nickname
+                      }
+                    </strong>
+
+                    <span>
+                      {
+                        entry.moves
+                      }
+                      회 ·{" "}
+                      {formatGameTime(
+                        entry.timeMs,
+                      )}
+                    </span>
+
+                  </div>
+
+                </div>
+              ),
+            )}
+
+          </div>
+
+        ) : (
+
+          <div className="ranking-empty">
+            아직 등록된 기록이
+            없어요.
+            <br />
+            첫 번째 TOP 3의
+            주인공이 되어보세요.
+          </div>
+
+        )}
+
+      </aside>
+
+
+      <div className="panel game ranked-game">
+
+        <div className="game-heading">
+
+          <div>
+
+            <span className="eyebrow">
+              MEMORY GAME
+            </span>
+
+            <h2>
+              냥냥 짝 맞추기
+            </h2>
+
+            <p>
+              같은 그림 두 장을
+              찾아보세요.
             </p>
-          )}
-          <button className="primary-button" onClick={start}>
-            <RotateCcw size={16} />
-            다시 하기
-          </button>
-        </>
-      ) : (
-        <div className="game-start">
-          <Gamepad2 size={48} strokeWidth={1} />
-          <button className="primary-button" onClick={start}>
-            게임 시작
-          </button>
+
+          </div>
+
+
+          <div className="game-live-stats">
+
+            <span>
+              {moves}회
+            </span>
+
+            <span>
+              {matched.length /
+                2}
+              /6쌍
+            </span>
+
+            <span>
+              {formatGameTime(
+                elapsedMs,
+              )}
+            </span>
+
+          </div>
+
         </div>
-      )}
+
+
+        {started ? (
+
+          <>
+
+            <div className="memory-grid">
+
+              {cards.map(
+                (
+                  card,
+                  index,
+                ) => (
+
+                  <button
+                    key={
+                      index
+                    }
+                    type="button"
+                    onClick={() =>
+                      flip(
+                        index,
+                      )
+                    }
+                    disabled={
+                      completed ||
+                      matched.includes(
+                        index,
+                      ) ||
+                      open.length ===
+                        2
+                    }
+                    className={`memory-card ${
+                      open.includes(
+                        index,
+                      ) ||
+                      matched.includes(
+                        index,
+                      )
+                        ? "flipped"
+                        : ""
+                    }`}
+                    aria-label={
+                      open.includes(
+                        index,
+                      ) ||
+                      matched.includes(
+                        index,
+                      )
+                        ? card
+                        : `${index + 1}번 카드 뒤집기`
+                    }
+                  >
+
+                    {open.includes(
+                      index,
+                    ) ||
+                    matched.includes(
+                      index,
+                    ) ? (
+
+                      card
+
+                    ) : (
+
+                      <Cat
+                        size={28}
+                        strokeWidth={
+                          1.2
+                        }
+                      />
+
+                    )}
+
+                  </button>
+
+                ),
+              )}
+
+            </div>
+
+
+            {completed && (
+
+              <div className="game-result-card">
+
+                <div className="game-result-title">
+
+                  <Check
+                    size={20}
+                  />
+
+                  <div>
+
+                    <strong>
+                      게임 완료!
+                    </strong>
+
+                    <span>
+                      {moves}회 ·{" "}
+                      {formatGameTime(
+                        elapsedMs,
+                      )}
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                {finishing ? (
+
+                  <p className="rank-message">
+                    TOP 3 진입 여부를
+                    확인하고 있어요.
+                  </p>
+
+                ) : qualified ? (
+
+                  <form
+                    className="rank-entry-form"
+                    onSubmit={
+                      submitRanking
+                    }
+                  >
+
+                    <p>
+                      {
+                        rankMessage
+                      }
+                    </p>
+
+                    <label>
+
+                      랭킹 닉네임
+
+                      <input
+                        type="text"
+                        value={
+                          nickname
+                        }
+                        onChange={(
+                          event,
+                        ) =>
+                          setNickname(
+                            event
+                              .target
+                              .value,
+                          )
+                        }
+                        maxLength={
+                          20
+                        }
+                        placeholder="1~20자"
+                        autoComplete="off"
+                      />
+
+                    </label>
+
+                    <button
+                      type="submit"
+                      className="primary-button"
+                      disabled={
+                        rankBusy ||
+                        !nickname.trim()
+                      }
+                    >
+
+                      {rankBusy
+                        ? "등록 중..."
+                        : "TOP 3 등록"}
+
+                    </button>
+
+                  </form>
+
+                ) : (
+
+                  <p
+                    className={`rank-message ${
+                      registered
+                        ? "success"
+                        : ""
+                    }`}
+                  >
+                    {
+                      rankMessage
+                    }
+                  </p>
+
+                )}
+
+              </div>
+
+            )}
+
+
+            <button
+              type="button"
+              className="primary-button game-restart-button"
+              onClick={
+                start
+              }
+              disabled={
+                starting
+              }
+            >
+
+              <RotateCcw
+                size={16}
+              />
+
+              {starting
+                ? "준비 중..."
+                : "다시 하기"}
+
+            </button>
+
+          </>
+
+        ) : (
+
+          <div className="game-start">
+
+            <Gamepad2
+              size={48}
+              strokeWidth={1}
+            />
+
+            <p>
+              누구나 로그인 없이
+              참여할 수 있어요.
+              <br />
+              TOP 3에 들면 원하는
+              닉네임으로 기록할 수
+              있습니다.
+            </p>
+
+            <button
+              type="button"
+              className="primary-button"
+              onClick={
+                start
+              }
+              disabled={
+                starting
+              }
+            >
+
+              {starting
+                ? "게임 준비 중..."
+                : "게임 시작"}
+
+            </button>
+
+          </div>
+
+        )}
+
+      </div>
+
     </section>
   );
 }
