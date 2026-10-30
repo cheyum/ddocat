@@ -3203,11 +3203,14 @@ p {
 
   gap: 18px;
 
-  align-items: start;
+  /* 두 박스를 같은 높이로 맞춤 */
+  align-items: stretch;
 }
 
 
 .ranking-board {
+  height: 100%;
+  
   padding: 24px 20px;
 
   border-radius: 22px;
@@ -3391,6 +3394,8 @@ p {
   width: 100%;
 
   max-width: none;
+
+  height: 100%;
 }
 
 
@@ -3594,14 +3599,20 @@ p {
 
   .memory-game-page {
     grid-template-columns: 1fr;
+
+    align-items: start;
   }
 
   .ranking-board {
     order: 2;
+
+    height: auto;
   }
 
   .ranked-game {
     order: 1;
+
+    height: auto;
   }
 
 }
