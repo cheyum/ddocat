@@ -3935,3 +3935,202 @@ p {
   }
 
 }
+/* ==========================================
+   UPDATE POPUP
+========================================== */
+
+.update-popup-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  background:
+    rgba(2, 8, 15, 0.62);
+
+  backdrop-filter:
+    blur(7px);
+
+  -webkit-backdrop-filter:
+    blur(7px);
+}
+
+
+.update-popup {
+  position: relative;
+
+  width: min(
+    440px,
+    100%
+  );
+
+  padding:
+    28px 26px 24px;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(10, 27, 43, 0.97),
+      rgba(21, 35, 44, 0.96)
+    );
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.14);
+
+  box-shadow:
+    0 25px 70px
+    rgba(0, 0, 0, 0.42);
+}
+
+
+.update-popup-close {
+  position: absolute;
+
+  top: 15px;
+
+  right: 15px;
+
+  width: 34px;
+
+  height: 34px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 0;
+
+  border-radius: 10px;
+
+  background:
+    rgba(255, 255, 255, 0.06);
+
+  color:
+    rgba(255, 255, 255, 0.65);
+
+  cursor: pointer;
+}
+
+
+.update-popup-eyebrow {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #b8cbff;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  letter-spacing: 1.7px;
+}
+
+
+.update-popup h2 {
+  margin:
+    0 0 20px;
+
+  color: #fff;
+
+  font-size: 24px;
+
+  font-weight: 900;
+}
+
+
+.update-popup-content {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+
+.update-popup-item {
+  padding: 14px 15px;
+
+  border-radius: 13px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.09);
+
+  background:
+    rgba(255, 255, 255, 0.045);
+}
+
+
+.update-popup-item strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #fff;
+
+  font-size: 12px;
+}
+
+
+.update-popup-item p {
+  margin: 0;
+
+  color:
+    rgba(255, 255, 255, 0.53);
+
+  font-size: 10px;
+
+  line-height: 1.6;
+}
+
+
+.update-popup-confirm {
+  width: 100%;
+
+  height: 43px;
+
+  margin-top: 18px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  background: #d7e4ff;
+
+  color: #173048;
+
+  font-size: 12px;
+
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+
+@media (max-width: 560px) {
+
+  .update-popup {
+    padding:
+      24px 18px 19px;
+  }
+
+  .update-popup h2 {
+    font-size: 21px;
+  }
+
+}
