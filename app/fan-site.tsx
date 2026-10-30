@@ -1639,6 +1639,120 @@ const externalGames: ExternalGame[] = [
   },
 ];
 
+function ExternalGameList() {
+  if (!externalGames.length) {
+    return null;
+  }
+
+  return (
+    <section className="external-games-section">
+
+      <div className="external-games-heading">
+
+        <div>
+          <span className="eyebrow">
+            EXTERNAL GAMES
+          </span>
+
+          <h2>
+            다른 게임도 플레이해보세요
+          </h2>
+
+          <p>
+            게임을 선택하면 새 탭에서 열립니다.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div className="external-games-grid">
+
+        {externalGames.map(
+          (game) => (
+
+            <a
+              key={game.id}
+              className="external-game-card panel"
+              href={game.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+
+              <div className="external-game-thumbnail">
+
+                {game.thumbnail ? (
+
+                  <img
+                    src={game.thumbnail}
+                    alt={`${game.title} 썸네일`}
+                    loading="lazy"
+                  />
+
+                ) : (
+
+                  <div className="external-game-thumbnail-empty">
+
+                    <Gamepad2
+                      size={38}
+                      strokeWidth={1.2}
+                    />
+
+                  </div>
+
+                )}
+
+                <span className="external-game-badge">
+                  GAME
+                </span>
+
+              </div>
+
+
+              <div className="external-game-info">
+
+                <div className="external-game-title">
+
+                  <h3>
+                    {game.title}
+                  </h3>
+
+                  <ExternalLink
+                    size={15}
+                  />
+
+                </div>
+
+
+                {game.description && (
+
+                  <p>
+                    {game.description}
+                  </p>
+
+                )}
+
+
+                <span className="external-game-play">
+                  플레이하기
+                  <ExternalLink
+                    size={12}
+                  />
+                </span>
+
+              </div>
+
+            </a>
+
+          ),
+        )}
+
+      </div>
+
+    </section>
+  );
+}
+
 const symbols = [
   "🐱",
   "🐾",
@@ -1807,120 +1921,6 @@ function MemoryGame() {
       );
     }
   }
-
-function ExternalGameList() {
-  if (!externalGames.length) {
-    return null;
-  }
-
-  return (
-    <section className="external-games-section">
-
-      <div className="external-games-heading">
-
-        <div>
-          <span className="eyebrow">
-            EXTERNAL GAMES
-          </span>
-
-          <h2>
-            다른 게임도 플레이해보세요
-          </h2>
-
-          <p>
-            게임을 선택하면 새 탭에서 열립니다.
-          </p>
-        </div>
-
-      </div>
-
-
-      <div className="external-games-grid">
-
-        {externalGames.map(
-          (game) => (
-
-            <a
-              key={game.id}
-              className="external-game-card panel"
-              href={game.url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-
-              <div className="external-game-thumbnail">
-
-                {game.thumbnail ? (
-
-                  <img
-                    src={game.thumbnail}
-                    alt={`${game.title} 썸네일`}
-                    loading="lazy"
-                  />
-
-                ) : (
-
-                  <div className="external-game-thumbnail-empty">
-
-                    <Gamepad2
-                      size={38}
-                      strokeWidth={1.2}
-                    />
-
-                  </div>
-
-                )}
-
-                <span className="external-game-badge">
-                  GAME
-                </span>
-
-              </div>
-
-
-              <div className="external-game-info">
-
-                <div className="external-game-title">
-
-                  <h3>
-                    {game.title}
-                  </h3>
-
-                  <ExternalLink
-                    size={15}
-                  />
-
-                </div>
-
-
-                {game.description && (
-
-                  <p>
-                    {game.description}
-                  </p>
-
-                )}
-
-
-                <span className="external-game-play">
-                  플레이하기
-                  <ExternalLink
-                    size={12}
-                  />
-                </span>
-
-              </div>
-
-            </a>
-
-          ),
-        )}
-
-      </div>
-
-    </section>
-  );
-}
 
   useEffect(() => {
     loadRankings();
