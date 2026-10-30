@@ -883,10 +883,102 @@ p {
   }
 }
 @media (max-width: 600px) {
+  @media (max-width: 600px) {
+
   .backdrop-image {
-    background-image: var(--mobile-bg);
-    background-position: var(--mobile-position);
+    background-image:
+      var(--mobile-bg);
+
+    background-position:
+      var(--mobile-position);
+
+    --current-duration:
+      var(
+        --mobile-anim-duration
+      );
+
+    --current-distance:
+      var(
+        --mobile-anim-distance
+      );
+
+    --current-distance-neg:
+      var(
+        --mobile-anim-distance-neg
+      );
+
+    --current-motion-scale:
+      var(
+        --mobile-motion-scale
+      );
+
+    --current-zoom-scale:
+      var(
+        --mobile-zoom-scale
+      );
+
+    --current-brightness:
+      var(
+        --mobile-brightness
+      );
+
+    --current-saturation:
+      var(
+        --mobile-saturation
+      );
+
+    animation: none;
   }
+
+
+  .backdrop[
+    data-mobile-animation="float"
+  ]
+  .backdrop-image {
+    animation:
+      ddocatBgFloat
+      var(--current-duration)
+      ease-in-out
+      infinite;
+  }
+
+
+  .backdrop[
+    data-mobile-animation="pan"
+  ]
+  .backdrop-image {
+    animation:
+      ddocatBgPan
+      var(--current-duration)
+      ease-in-out
+      infinite;
+  }
+
+
+  .backdrop[
+    data-mobile-animation="zoom"
+  ]
+  .backdrop-image {
+    animation:
+      ddocatBgZoom
+      var(--current-duration)
+      ease-in-out
+      infinite;
+  }
+
+
+  .backdrop[
+    data-mobile-animation="glow"
+  ]
+  .backdrop-image {
+    animation:
+      ddocatBgGlow
+      var(--current-duration)
+      ease-in-out
+      infinite;
+  }
+
+}
   .site-header {
     padding: 22px 0 15px;
     flex-direction: column;
@@ -4171,4 +4263,373 @@ p {
     animation: none;
     will-change: auto;
   }
+}
+/* ==========================================
+   BACKGROUND ANIMATION
+========================================== */
+
+.backdrop-image {
+  will-change:
+    transform,
+    filter;
+
+  --current-duration:
+    var(--pc-anim-duration);
+
+  --current-distance:
+    var(--pc-anim-distance);
+
+  --current-distance-neg:
+    var(--pc-anim-distance-neg);
+
+  --current-motion-scale:
+    var(--pc-motion-scale);
+
+  --current-zoom-scale:
+    var(--pc-zoom-scale);
+
+  --current-brightness:
+    var(--pc-brightness);
+
+  --current-saturation:
+    var(--pc-saturation);
+}
+
+
+/* 둥실둥실 */
+
+.backdrop[
+  data-pc-animation="float"
+]
+.backdrop-image {
+  animation:
+    ddocatBgFloat
+    var(--current-duration)
+    ease-in-out
+    infinite;
+}
+
+
+/* 좌우 이동 */
+
+.backdrop[
+  data-pc-animation="pan"
+]
+.backdrop-image {
+  animation:
+    ddocatBgPan
+    var(--current-duration)
+    ease-in-out
+    infinite;
+}
+
+
+/* 확대 / 축소 */
+
+.backdrop[
+  data-pc-animation="zoom"
+]
+.backdrop-image {
+  animation:
+    ddocatBgZoom
+    var(--current-duration)
+    ease-in-out
+    infinite;
+}
+
+
+/* 조명 효과 */
+
+.backdrop[
+  data-pc-animation="glow"
+]
+.backdrop-image {
+  animation:
+    ddocatBgGlow
+    var(--current-duration)
+    ease-in-out
+    infinite;
+}
+
+
+@keyframes ddocatBgFloat {
+
+  0%,
+  100% {
+    transform:
+      scale(
+        var(
+          --current-motion-scale
+        )
+      )
+      translate3d(
+        0,
+        var(
+          --current-distance
+        ),
+        0
+      );
+  }
+
+  50% {
+    transform:
+      scale(
+        var(
+          --current-motion-scale
+        )
+      )
+      translate3d(
+        0,
+        var(
+          --current-distance-neg
+        ),
+        0
+      );
+  }
+
+}
+
+
+@keyframes ddocatBgPan {
+
+  0%,
+  100% {
+    transform:
+      scale(
+        var(
+          --current-motion-scale
+        )
+      )
+      translate3d(
+        var(
+          --current-distance-neg
+        ),
+        0,
+        0
+      );
+  }
+
+  50% {
+    transform:
+      scale(
+        var(
+          --current-motion-scale
+        )
+      )
+      translate3d(
+        var(
+          --current-distance
+        ),
+        0,
+        0
+      );
+  }
+
+}
+
+
+@keyframes ddocatBgZoom {
+
+  0%,
+  100% {
+    transform:
+      scale(
+        var(
+          --bg-scale
+        )
+      );
+  }
+
+  50% {
+    transform:
+      scale(
+        var(
+          --current-zoom-scale
+        )
+      );
+  }
+
+}
+
+
+@keyframes ddocatBgGlow {
+
+  0%,
+  100% {
+    transform:
+      scale(
+        var(
+          --bg-scale
+        )
+      );
+
+    filter:
+      brightness(1)
+      saturate(1);
+  }
+
+  50% {
+    transform:
+      scale(
+        var(
+          --bg-scale
+        )
+      );
+
+    filter:
+      brightness(
+        var(
+          --current-brightness
+        )
+      )
+      saturate(
+        var(
+          --current-saturation
+        )
+      );
+  }
+
+}
+/* ==========================================
+   ADMIN BACKGROUND ANIMATION
+========================================== */
+
+.background-animation-settings {
+  width: 100%;
+
+  margin-top: 12px;
+
+  padding: 14px;
+
+  border:
+    1px solid
+    rgba(80, 105, 75, 0.13);
+
+  border-radius: 12px;
+
+  background:
+    rgba(244, 248, 240, 0.8);
+}
+
+
+.background-animation-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content:
+    space-between;
+
+  gap: 12px;
+
+  margin-bottom: 14px;
+}
+
+
+.background-animation-header strong {
+  color: #3c4d34;
+
+  font-size: 13px;
+}
+
+
+.animation-toggle {
+  display: flex;
+
+  flex-direction: row !important;
+
+  align-items: center;
+
+  gap: 7px !important;
+
+  font-size: 11px !important;
+
+  cursor: pointer;
+}
+
+
+.animation-toggle input {
+  width: 16px !important;
+
+  height: 16px;
+
+  margin: 0;
+}
+
+
+.background-animation-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+
+.background-animation-grid label {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+
+  min-width: 0;
+
+  color: #65705d;
+
+  font-size: 11px;
+
+  font-weight: 700;
+}
+
+
+.background-animation-grid select {
+  width: 100%;
+
+  padding: 9px 10px;
+
+  border:
+    1px solid
+    #d9e2d3;
+
+  border-radius: 8px;
+
+  background: white;
+
+  color: #33402b;
+}
+
+
+.background-animation-grid input[type="range"] {
+  width: 100%;
+
+  accent-color:
+    #729449;
+}
+
+
+.background-animation-settings small {
+  display: block;
+
+  margin-top: 11px;
+
+  color: #87917f;
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+
+@media (max-width: 700px) {
+
+  .background-animation-grid {
+    grid-template-columns:
+      1fr;
+  }
+
 }

@@ -44,6 +44,71 @@ type VodView =
   | "soop"
   | "youtube";
 
+const DEFAULT_BACKGROUND_ANIMATION = {
+  enabled: false,
+  type: "float" as const,
+  speed: 5,
+  intensity: 5,
+};
+
+function getBackgroundAnimation(
+  data: Config,
+  imageUrl: string,
+) {
+  return (
+    data.backgroundAnimations?.[
+      imageUrl
+    ] ??
+    DEFAULT_BACKGROUND_ANIMATION
+  );
+}
+
+function getAnimationValues(
+  speed: number,
+  intensity: number,
+  baseScale: number,
+  mobile = false,
+) {
+  const mobileFactor =
+    mobile ? 0.55 : 1;
+
+  const strength =
+    intensity *
+    mobileFactor;
+
+  return {
+    duration:
+      `${Math.max(
+        4,
+        20 - speed * 1.45,
+      )}s`,
+
+    distance:
+      `${4 + strength * 2.6}px`,
+
+    negativeDistance:
+      `-${4 + strength * 2.6}px`,
+
+    motionScale:
+      baseScale *
+      (1 +
+        strength * 0.0025),
+
+    zoomScale:
+      baseScale *
+      (1 +
+        strength * 0.008),
+
+    brightness:
+      1 +
+      strength * 0.035,
+
+    saturation:
+      1 +
+      strength * 0.045,
+  };
+}  
+
 export function Backdrop({
   data,
   background,
@@ -52,35 +117,128 @@ export function Backdrop({
   background?: string;
 }) {
   const selectedBackground =
-    background || data.background;
+    background ||
+    data.background;
+
+  const mobileBackground =
+    data.mobileBackground ||
+    selectedBackground;
+
+  const pcAnimation =
+    getBackgroundAnimation(
+      data,
+      selectedBackground,
+    );
+
+  const mobileAnimation =
+    getBackgroundAnimation(
+      data,
+      mobileBackground,
+    );
+
+  const baseScale =
+    data.zoom / 100;
+
+  const pcValues =
+    getAnimationValues(
+      pcAnimation.speed,
+      pcAnimation.intensity,
+      baseScale,
+      false,
+    );
+
+  const mobileValues =
+    getAnimationValues(
+      mobileAnimation.speed,
+      mobileAnimation.intensity,
+      baseScale,
+      true,
+    );
 
   return (
     <div
       className="backdrop"
       aria-hidden="true"
+      data-pc-animation={
+        pcAnimation.enabled
+          ? pcAnimation.type
+          : "none"
+      }
+      data-mobile-animation={
+        mobileAnimation.enabled
+          ? mobileAnimation.type
+          : "none"
+      }
       style={
         {
-          "--pc-bg": selectedBackground
-            ? `url("${selectedBackground}")`
-            : "none",
-
-          "--mobile-bg":
-            data.mobileBackground || selectedBackground
-              ? `url("${
-                  data.mobileBackground ||
-                  selectedBackground
-                }")`
+          "--pc-bg":
+            selectedBackground
+              ? `url("${selectedBackground}")`
               : "none",
 
-          "--bg-position": data.position,
+          "--mobile-bg":
+            mobileBackground
+              ? `url("${mobileBackground}")`
+              : "none",
+
+          "--bg-position":
+            data.position,
+
           "--mobile-position":
             data.mobilePosition,
-          "--bg-scale": data.zoom / 100,
-          "--shade": data.overlay / 100,
+
+          "--bg-scale":
+            baseScale,
+
+          "--shade":
+            data.overlay / 100,
+
+          "--pc-anim-duration":
+            pcValues.duration,
+
+          "--pc-anim-distance":
+            pcValues.distance,
+
+          "--pc-anim-distance-neg":
+            pcValues.negativeDistance,
+
+          "--pc-motion-scale":
+            pcValues.motionScale,
+
+          "--pc-zoom-scale":
+            pcValues.zoomScale,
+
+          "--pc-brightness":
+            pcValues.brightness,
+
+          "--pc-saturation":
+            pcValues.saturation,
+
+          "--mobile-anim-duration":
+            mobileValues.duration,
+
+          "--mobile-anim-distance":
+            mobileValues.distance,
+
+          "--mobile-anim-distance-neg":
+            mobileValues.negativeDistance,
+
+          "--mobile-motion-scale":
+            mobileValues.motionScale,
+
+          "--mobile-zoom-scale":
+            mobileValues.zoomScale,
+
+          "--mobile-brightness":
+            mobileValues.brightness,
+
+          "--mobile-saturation":
+            mobileValues.saturation,
         } as React.CSSProperties
       }
     >
       <div className="backdrop-image" />
+
       <div className="backdrop-shade" />
     </div>
   );

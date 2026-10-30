@@ -68,6 +68,32 @@ const defaultUpdateNotice = {
   ],
 };
 
+const backgroundAnimationSchema =
+  z.object({
+    enabled:
+      z.boolean(),
+
+    type:
+      z.enum([
+        "float",
+        "pan",
+        "zoom",
+        "glow",
+      ]),
+
+    speed:
+      z.number()
+        .int()
+        .min(1)
+        .max(10),
+
+    intensity:
+      z.number()
+        .int()
+        .min(1)
+        .max(10),
+  });
+
 export const configSchema =
   z.object({
     name:
@@ -84,14 +110,20 @@ export const configSchema =
         .max(5000),
 
     background:
-      image,
+  image,
 
-    backgrounds:
-      z.array(image)
-        .default([]),
+backgrounds:
+  z.array(image)
+    .default([]),
 
-    mobileBackground:
-      image,
+backgroundAnimations:
+  z.record(
+    backgroundAnimationSchema,
+  )
+    .default({}),
+
+mobileBackground:
+  image,
 
     avatar:
       image,
@@ -239,13 +271,16 @@ export const defaults:
       "",
 
     background:
-      "/images/main-background.png",
+  "/images/main-background.png",
 
-    backgrounds:
-      [],
+backgrounds:
+  [],
 
-    mobileBackground:
-      "",
+backgroundAnimations:
+  {},
+
+mobileBackground:
+  "",
 
     avatar:
       "",

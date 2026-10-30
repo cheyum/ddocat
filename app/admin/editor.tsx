@@ -323,6 +323,249 @@ export default function AdminEditor({
       setBusy(false);
     }
   }
+  
+  type AnimationSetting =
+  Config[
+    "backgroundAnimations"
+  ][string];
+
+const DEFAULT_ANIMATION:
+  AnimationSetting = {
+    enabled: false,
+    type: "float",
+    speed: 5,
+    intensity: 5,
+  };
+
+function getAnimation(
+  imageUrl: string,
+): AnimationSetting {
+  return (
+    data.backgroundAnimations[
+      imageUrl
+    ] ??
+    DEFAULT_ANIMATION
+  );
+}
+
+function updateAnimation(
+  imageUrl: string,
+  patch:
+    Partial<AnimationSetting>,
+) {
+  if (!imageUrl) {
+    return;
+  }
+
+  const current =
+    getAnimation(
+      imageUrl,
+    );
+
+  update(
+    "backgroundAnimations",
+    {
+      ...data
+        .backgroundAnimations,
+
+      [imageUrl]: {
+        ...current,
+        ...patch,
+      },
+    },
+  );
+}
+
+function BackgroundAnimationControls({
+  imageUrl,
+}: {
+  imageUrl: string;
+}) {
+  if (!imageUrl) {
+    return null;
+  }
+
+  const animation =
+    getAnimation(
+      imageUrl,
+    );
+
+  return (
+    <div className="background-animation-settings">
+
+      <div className="background-animation-header">
+
+        <strong>
+          이미지 애니메이션
+        </strong>
+
+        <label className="animation-toggle">
+
+          <input
+            type="checkbox"
+            checked={
+              animation.enabled
+            }
+            onChange={(
+              event,
+            ) =>
+              updateAnimation(
+                imageUrl,
+                {
+                  enabled:
+                    event
+                      .target
+                      .checked,
+                },
+              )
+            }
+          />
+
+          <span>
+            {animation.enabled
+              ? "ON"
+              : "OFF"}
+          </span>
+
+        </label>
+
+      </div>
+
+
+      <div className="background-animation-grid">
+
+        <label>
+
+          효과 종류
+
+          <select
+            value={
+              animation.type
+            }
+            disabled={
+              !animation.enabled
+            }
+            onChange={(
+              event,
+            ) =>
+              updateAnimation(
+                imageUrl,
+                {
+                  type:
+                    event.target
+                      .value as
+                    AnimationSetting[
+                      "type"
+                    ],
+                },
+              )
+            }
+          >
+
+            <option value="float">
+              둥실둥실
+            </option>
+
+            <option value="pan">
+              좌우 이동
+            </option>
+
+            <option value="zoom">
+              확대 / 축소
+            </option>
+
+            <option value="glow">
+              조명 효과
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <label>
+
+          속도 ·{" "}
+          {animation.speed}
+
+          <input
+            type="range"
+            min="1"
+            max="10"
+            step="1"
+            value={
+              animation.speed
+            }
+            disabled={
+              !animation.enabled
+            }
+            onChange={(
+              event,
+            ) =>
+              updateAnimation(
+                imageUrl,
+                {
+                  speed:
+                    Number(
+                      event
+                        .target
+                        .value,
+                    ),
+                },
+              )
+            }
+          />
+
+        </label>
+
+
+        <label>
+
+          강도 ·{" "}
+          {animation.intensity}
+
+          <input
+            type="range"
+            min="1"
+            max="10"
+            step="1"
+            value={
+              animation.intensity
+            }
+            disabled={
+              !animation.enabled
+            }
+            onChange={(
+              event,
+            ) =>
+              updateAnimation(
+                imageUrl,
+                {
+                  intensity:
+                    Number(
+                      event
+                        .target
+                        .value,
+                    ),
+                },
+              )
+            }
+          />
+
+        </label>
+
+      </div>
+
+
+      <small>
+        모바일에서는 움직임 강도가
+        자동으로 낮아집니다.
+      </small>
+
+    </div>
+  );
+}
+
   function ImageField({
   label,
   field,
@@ -580,33 +823,47 @@ export default function AdminEditor({
                   <div className="background-list">
                     {data.backgrounds.map((url, index) => (
                       <div
-                        className="background-list-item"
-                        key={`${url}-${index}`}
-                      >
-                        <img
-                          src={url}
-                          alt={`추가 배경 ${index + 1}`}
-                        />
+  className="background-list-item"
+  key={`${url}-${index}`}
+>
+  <img
+    src={url}
+    alt={`추가 배경 ${index + 1}`}
+  />
 
-                        <div className="background-list-info">
-                          <span>배경 {index + 1}</span>
+  <div className="background-list-info">
 
-                          <button
-                            type="button"
-                            className="text-button"
-                            onClick={() =>
-                              update(
-                                "backgrounds",
-                                data.backgrounds.filter(
-                                  (_, i) => i !== index,
-                                ),
-                              )
-                            }
-                          >
-                            삭제
-                          </button>
-                        </div>
-                      </div>
+    <span>
+      배경 {index + 1}
+    </span>
+
+    <button
+      type="button"
+      className="text-button"
+      onClick={() =>
+        update(
+          "backgrounds",
+          data.backgrounds.filter(
+            (
+              _,
+              currentIndex,
+            ) =>
+              currentIndex !==
+              index,
+          ),
+        )
+      }
+    >
+      삭제
+    </button>
+
+  </div>
+
+  <BackgroundAnimationControls
+    imageUrl={url}
+  />
+
+</div>
                     ))}
                   </div>
                 )}
