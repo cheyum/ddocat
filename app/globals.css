@@ -4134,3 +4134,41 @@ p {
   }
 
 }
+
+/* 또오냥 팬페이지 - 배경 애니메이션 */
+
+.backdrop-image {
+  /* 움직일 때 화면 가장자리가 드러나지 않도록 여유 확보 */
+  inset: -1.5%;
+
+  /* 기존 관리자 확대 설정은 그대로 유지 */
+  animation: ddocatBackgroundMove 24s
+    ease-in-out infinite alternate;
+
+  will-change: translate;
+}
+
+@keyframes ddocatBackgroundMove {
+  0% {
+    translate: -0.5% 0.2%;
+  }
+
+  100% {
+    translate: 0.5% -0.2%;
+  }
+}
+
+/* 모바일에서는 움직임을 조금 줄임 */
+@media (max-width: 600px) {
+  .backdrop-image {
+    animation-duration: 30s;
+  }
+}
+
+/* 움직임 최소화 설정을 사용하는 방문자 배려 */
+@media (prefers-reduced-motion: reduce) {
+  .backdrop-image {
+    animation: none;
+    will-change: auto;
+  }
+}
