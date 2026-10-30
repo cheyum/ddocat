@@ -8,7 +8,7 @@ export default async function Page({
   params: Promise<{ section: string }>;
 }) {
   const { section } = await params;
-  if (!["profile", "vod", "calendar", "minigame"].includes(section)) notFound();
+  if (!["profile", "vod", "calendar", "minigame", "qna"].includes(section)) notFound();
   try {
     const { config } = await loadSettings();
     return <FanSite section={section} data={config} />;
